@@ -1,0 +1,41 @@
+{
+  "name": "packfuse",
+  "version": "1.0.0",
+  "description": "Fuse skill packs onto Cursor, Claude Code, and Codex",
+  "type": "module",
+  "bin": {
+    "packfuse": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "packs",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "packfuse": "tsx src/cli.ts",
+    "test": "tsc && tsx src/snapshot.test.ts && node scripts/validate-manifests.mjs",
+    "eval": "node evals/run.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "cursor",
+    "claude",
+    "codex",
+    "skills",
+    "agent"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "js-tiktoken": "^1.0.21",
+    "yaml": "^2.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

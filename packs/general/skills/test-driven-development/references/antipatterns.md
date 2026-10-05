@@ -1,0 +1,2 @@
+- Do not write tests after a lucky pass and call it TDD.
+- Do not mock the unit under test.

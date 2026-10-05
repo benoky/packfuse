@@ -1,0 +1,4 @@
+# Title
+## Context
+## Decision
+## Consequences

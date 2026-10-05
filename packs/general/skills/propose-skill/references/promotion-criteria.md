@@ -1,0 +1,3 @@
+- Same procedure restated ~3 times
+- Stable steps
+- Not a one-off

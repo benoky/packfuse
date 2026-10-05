@@ -1,0 +1,62 @@
+{
+  "id": "docs",
+  "version": "1.0.0",
+  "items": [
+    {
+      "id": "docs-pdf",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "anthropics/skills pdf (wrapper)"
+    },
+    {
+      "id": "docs-docx",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "anthropics/skills docx (wrapper)"
+    },
+    {
+      "id": "docs-xlsx",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "anthropics/skills xlsx (wrapper)"
+    },
+    {
+      "id": "docs-pptx",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "anthropics/skills pptx (wrapper)"
+    }
+  ]
+}

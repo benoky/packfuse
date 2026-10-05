@@ -1,0 +1,20 @@
+{
+  "id": "tools",
+  "version": "1.0.0",
+  "items": [
+    {
+      "id": "mcp-builder",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "anthropics/skills mcp-builder (procedure)"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "packs": [
+    "general",
+    "git",
+    "web-ui",
+    "react",
+    "figma",
+    "api",
+    "local-runtime",
+    "security",
+    "tools",
+    "docs"
+  ]
+}

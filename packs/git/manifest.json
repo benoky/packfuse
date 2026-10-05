@@ -1,0 +1,76 @@
+{
+  "id": "git",
+  "version": "1.0.0",
+  "items": [
+    {
+      "id": "commit-by-theme",
+      "kind": "skill",
+      "priority": "p0",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "self"
+    },
+    {
+      "id": "finishing-a-development-branch",
+      "kind": "skill",
+      "priority": "p0",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "obra/superpowers finishing-a-development-branch (procedure)"
+    },
+    {
+      "id": "git-bisect",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "self"
+    },
+    {
+      "id": "using-git-worktrees",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "obra/superpowers using-git-worktrees (procedure)"
+    },
+    {
+      "id": "cut-release",
+      "kind": "skill",
+      "priority": "p1",
+      "tools": [
+        "cursor",
+        "claude",
+        "codex"
+      ],
+      "invoke": "slash",
+      "requires": [],
+      "version": "1.0.0",
+      "source": "self"
+    }
+  ]
+}
