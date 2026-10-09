@@ -1,6 +1,6 @@
 {
     "id": "tools",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "items": [
         {
             "id": "mcp-builder",
@@ -9,7 +9,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "anthropics/skills mcp-builder (procedure)"
         }
     ]

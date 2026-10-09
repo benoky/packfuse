@@ -5,7 +5,7 @@ import json
 
 ROOT = Path("/workspace/packs")
 TOOLS = ["cursor", "claude", "codex"]
-V = "1.0.0"
+V = "1.1.0"
 
 def skill(pack, sid, desc, body, invoke="auto", p="p0", requires=None, extras=None, source="self"):
     d = ROOT / pack / "skills" / sid

@@ -1,6 +1,6 @@
 {
     "id": "figma",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "items": [
         {
             "id": "figma-design-to-code",
@@ -9,7 +9,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "Figma official (wrapper)"
         }
     ]

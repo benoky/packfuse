@@ -1,6 +1,6 @@
 {
     "id": "web-ui",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "items": [
         {
             "id": "frontend-design",
@@ -9,7 +9,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "anthropics/skills frontend-design (procedure)"
         },
         {
@@ -19,7 +19,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "anthropics/skills webapp-testing (procedure)"
         },
         {
@@ -29,7 +29,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "vercel-labs/agent-skills (wrapper)"
         }
     ]

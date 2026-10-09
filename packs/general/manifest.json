@@ -1,13 +1,13 @@
 {
     "id": "general",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "items": [
         {
             "id": "requirements",
             "kind": "rule",
             "priority": "p0",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -15,7 +15,7 @@
             "kind": "rule",
             "priority": "p0",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -23,7 +23,7 @@
             "kind": "rule",
             "priority": "p0",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -31,7 +31,7 @@
             "kind": "rule",
             "priority": "p0",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -39,7 +39,7 @@
             "kind": "rule",
             "priority": "p0",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -47,7 +47,7 @@
             "kind": "rule",
             "priority": "p0",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self",
             "requires": ["general:propose-skill"]
         },
@@ -58,7 +58,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers brainstorming (procedure)"
         },
         {
@@ -68,7 +68,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers writing-plans (procedure)"
         },
         {
@@ -78,7 +78,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -88,7 +88,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers test-driven-development (procedure)"
         },
         {
@@ -98,7 +98,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers systematic-debugging (procedure)"
         },
         {
@@ -108,7 +108,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -118,7 +118,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers verification-before-completion (procedure)"
         },
         {
@@ -128,7 +128,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -138,7 +138,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers requesting-code-review (procedure)"
         },
         {
@@ -148,7 +148,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -158,7 +158,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -168,7 +168,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -178,7 +178,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers receiving-code-review (procedure)"
         },
         {
@@ -188,7 +188,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -198,7 +198,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -208,7 +208,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -218,7 +218,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -228,7 +228,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -238,7 +238,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -248,7 +248,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -258,7 +258,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -268,7 +268,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -278,7 +278,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": ["general:reviewer", "general:writing-plans"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "obra/superpowers subagent-driven-development (procedure)"
         },
         {
@@ -288,7 +288,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -298,7 +298,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -306,7 +306,7 @@
             "kind": "agent",
             "priority": "p1",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -314,7 +314,7 @@
             "kind": "agent",
             "priority": "p1",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -322,7 +322,7 @@
             "kind": "agent",
             "priority": "p1",
             "tools": ["cursor", "claude", "codex"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -330,7 +330,7 @@
             "kind": "hook",
             "priority": "p1",
             "tools": ["cursor", "claude"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -338,7 +338,7 @@
             "kind": "hook",
             "priority": "p1",
             "tools": ["cursor", "claude"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -346,7 +346,7 @@
             "kind": "hook",
             "priority": "p2",
             "tools": ["cursor"],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         }
     ]

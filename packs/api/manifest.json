@@ -1,6 +1,6 @@
 {
     "id": "api",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "items": [
         {
             "id": "api-design",
@@ -9,7 +9,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -19,7 +19,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "slash",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -29,7 +29,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         },
         {
@@ -39,7 +39,7 @@
             "tools": ["cursor", "claude", "codex"],
             "invoke": "auto",
             "requires": [],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": "self"
         }
     ]

@@ -6,7 +6,7 @@ const program = new Command();
 program
     .name("packfuse")
     .description("Fuse skill packs onto Cursor, Claude Code, and Codex")
-    .version("1.0.0");
+    .version("1.1.0");
 
 function scopeFlags(cmd: Command): Command {
     return cmd
