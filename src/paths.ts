@@ -10,7 +10,7 @@ export function homeDir(): string {
 }
 
 export function projectDir(cwd = process.cwd()): string {
-  return cwd;
+  return path.resolve(cwd);
 }
 
 export function packfuseDir(scope: Scope, cwd?: string): string {

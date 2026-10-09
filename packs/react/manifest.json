@@ -1,21 +1,17 @@
 {
-  "id": "react",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "react-best-practices",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "vercel-labs/agent-skills (wrapper)",
-      "vendor": "npx skills add vercel-labs/agent-skills"
-    }
-  ]
+    "id": "react",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "react-best-practices",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "vercel-labs/agent-skills (wrapper)",
+            "vendor": "npx skills add vercel-labs/agent-skills"
+        }
+    ]
 }

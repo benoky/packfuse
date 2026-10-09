@@ -1,62 +1,46 @@
 {
-  "id": "api",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "api-design",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "openapi-schema",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "db-migration",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "query-and-index",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    }
-  ]
+    "id": "api",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "api-design",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "openapi-schema",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "db-migration",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "query-and-index",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        }
+    ]
 }

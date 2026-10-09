@@ -1,20 +1,16 @@
 {
-  "id": "security",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "security-pass",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    }
-  ]
+    "id": "security",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "security-pass",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        }
+    ]
 }

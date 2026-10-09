@@ -3,3 +3,5 @@ dist/
 *.tgz
 .packfuse/state.json
 .DS_Store
+eval-runs/
+*.packfuse-*.tmp

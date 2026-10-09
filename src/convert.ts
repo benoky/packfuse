@@ -24,9 +24,6 @@ export function skillMarkdown(sel: SelectedItem, tool: Tool): string {
   if (slash && (tool === "cursor" || tool === "claude")) {
     fields.push("disable-model-invocation: true");
   }
-  if (slash && tool === "codex") {
-    fields.push("allow_implicit_invocation: false");
-  }
   return `---\n${fields.join("\n")}\n---\n${body}`;
 }
 
@@ -40,8 +37,8 @@ export function ruleMarkdown(sel: SelectedItem, tool: Tool): { always: boolean; 
 
 export function cursorMdc(sel: SelectedItem): string {
   const r = ruleMarkdown(sel, "cursor");
-  const lines = [`description: ${r.description}`];
-  if (r.globs) lines.push(`globs: ${r.globs}`);
+  const lines = [`description: ${JSON.stringify(r.description)}`];
+  if (r.globs) lines.push(`globs: ${JSON.stringify(r.globs)}`);
   lines.push(`alwaysApply: ${r.always}`);
   return `---\n${lines.join("\n")}\n---\n\n${r.body}\n`;
 }
@@ -56,17 +53,19 @@ export function upsertMarked(existing: string, pack: string, id: string, body: s
   const start = `<!-- pack:${pack}:${id} -->`;
   const end = `<!-- /pack:${pack}:${id} -->`;
   const block = markedBlock(pack, id, body);
-  const re = new RegExp(`${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}\\n?`);
+  const re = new RegExp(`${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}(?:\\r?\\n)?`);
   if (re.test(existing)) return existing.replace(re, block);
-  const trimmed = existing.replace(/\s*$/, "");
-  return trimmed ? `${trimmed}\n\n${block}` : block;
+  if (!existing) return block;
+  // Append without trimming any user-owned bytes.
+  const separator = /(?:\r?\n){2}$/.test(existing) ? "" : /\r?\n$/.test(existing) ? "\n" : "\n\n";
+  return `${existing}${separator}${block}`;
 }
 
 export function removeMarked(existing: string, pack: string, id: string): string {
   const start = `<!-- pack:${pack}:${id} -->`;
   const end = `<!-- /pack:${pack}:${id} -->`;
-  const re = new RegExp(`\\n*${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}\\n?`);
-  return existing.replace(re, "\n").replace(/\n{3,}/g, "\n\n").trimStart();
+  const re = new RegExp(`${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}(?:\\r?\\n)?`);
+  return existing.replace(re, "");
 }
 
 function escapeRe(s: string): string {
@@ -88,8 +87,7 @@ export function agentCodexToml(sel: SelectedItem): string {
   const { data, body } = agentMarkdown(sel);
   const name = String(data.name ?? sel.item.id);
   const description = String(data.description ?? "");
-  const instructions = body.trim().replace(/\\/g, "\\\\").replace(/"""/g, '\\"""');
-  return `name = "${name}"\ndescription = ${JSON.stringify(description)}\ndeveloper_instructions = """\n${instructions}\n"""\n`;
+  return `name = ${JSON.stringify(name)}\ndescription = ${JSON.stringify(description)}\ndeveloper_instructions = ${JSON.stringify(body.trim())}\n`;
 }
 
 export function hookScript(sel: SelectedItem): string {

@@ -3,5 +3,5 @@ description: Do not skip stated requirements; object before implementing a bad p
 alwaysApply: true
 ---
 
-- Implement every stated requirement. If a request is inefficient or wrong, object before coding.
-- Do not invent product scope the user did not ask for.
+- Implement the stated requirements; reuse accepted decisions and identify consequential unknowns before editing.
+- Do not invent product scope. Explain conflicts with existing contracts before changing them.

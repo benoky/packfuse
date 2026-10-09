@@ -1,399 +1,430 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, lstatSync, readdirSync, readFileSync, rmdirSync } from "node:fs";
 import path from "node:path";
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
-import type { SelectedItem, Tool } from "./types.js";
-import { detectMarkers, toolPaths, type Scope } from "./paths.js";
-import {
-  allItems,
-  filterByPriority,
-  findItem,
-  listSkillNamesOnDisk,
-  resolveRequires,
-  skillDir,
-} from "./manifest.js";
-import {
-  agentCodexToml,
-  agentCursorClaude,
-  cursorMdc,
-  hookScript,
-  removeMarked,
-  ruleMarkdown,
-  skillMarkdown,
-  upsertMarked,
-} from "./convert.js";
+import YAML from "yaml";
+import type { Installation, PackRelay, SelectedItem, StateFile, Tool } from "./types.js";
+import { detectMarkers, homeDir, lockPath, projectDir, statePath, toolPaths, type Scope } from "./paths.js";
+import { allItems, filterByPriority, findItem, listSkillNamesOnDisk, loadIndex, loadPack, resolveRequires, skillDir } from "./manifest.js";
+import { agentCodexToml, agentCursorClaude, cursorMdc, hookScript, parseMd, removeMarked, ruleMarkdown, skillMarkdown, upsertMarked } from "./convert.js";
 import { estimateTokens } from "./tokens.js";
-import {
-  addLockItem,
-  addStatePath,
-  itemStillInstalled,
-  readLock,
-  readState,
-  removeLockItem,
-  removeStateItem,
-  writeLock,
-  writeState,
-} from "./store.js";
+import { addLockItem, itemStillInstalled, readLock, readState } from "./store.js";
+import { FileTransaction } from "./transaction.js";
 
 export interface CommonOpts {
-  home?: boolean;
-  project?: boolean;
-  scope?: string;
-  tool?: string;
-  pack?: string;
-  item?: string;
-  priority?: string;
-  dryRun?: boolean;
-  all?: boolean;
-  cwd?: string;
+  home?: boolean; project?: boolean; scope?: string; tool?: string; pack?: string;
+  item?: string; priority?: string; dryRun?: boolean; all?: boolean; cwd?: string;
+  relayRunner?: (args: string[], cwd: string) => void;
 }
-
-function tty(): boolean {
-  return Boolean(process.stdin.isTTY && process.stdout.isTTY);
+const toolNames: Tool[] = ["cursor", "claude", "codex"];
+const keyOf = (s: SelectedItem) => `${s.pack}:${s.item.id}`;
+const tty = () => Boolean(input.isTTY && output.isTTY);
+function validateOptions(opts: CommonOpts): void {
+  if (opts.scope && !["home", "project"].includes(opts.scope)) throw new Error("--scope must be home|project");
+  if ((opts.home && opts.project) || (opts.home && opts.scope === "project") || (opts.project && opts.scope === "home")) throw new Error("Conflicting scope flags");
+  if (opts.priority && !["p0", "p1", "p2"].includes(opts.priority)) throw new Error("--priority must be p0|p1|p2");
+  if (opts.tool && !toolNames.includes(opts.tool as Tool)) throw new Error(`Unknown tool ${opts.tool}`);
+  if (opts.item && !opts.pack) throw new Error("--item requires --pack");
+  if (opts.all && opts.tool) throw new Error("Use --all or --tool, not both");
 }
-
 export async function resolveScope(opts: CommonOpts): Promise<Scope> {
+  validateOptions(opts);
   if (opts.home || opts.scope === "home") return "home";
   if (opts.project || opts.scope === "project") return "project";
   if (!tty()) throw new Error("Pass --home or --project");
   const rl = readline.createInterface({ input, output });
-  const a = (await rl.question("Install where? [home/project]: ")).trim().toLowerCase();
-  rl.close();
-  if (a === "home" || a === "project") return a;
-  throw new Error("Choose home or project");
+  try {
+    const answer = (await rl.question("Install where? [home/project]: ")).trim().toLowerCase();
+    if (answer === "home" || answer === "project") return answer;
+    throw new Error("Choose home or project");
+  } finally { rl.close(); }
 }
-
 export function resolveTools(scope: Scope, opts: CommonOpts): Tool[] {
-  const cwd = opts.cwd;
-  if (opts.tool) {
-    const t = opts.tool as Tool;
-    if (!["cursor", "claude", "codex"].includes(t)) throw new Error(`Unknown tool ${opts.tool}`);
-    return [t];
-  }
-  const state = readState(scope, cwd);
-  const recorded = Object.keys(state).filter((k) =>
-    ["cursor", "claude", "codex"].includes(k),
-  ) as Tool[];
+  validateOptions(opts);
+  if (opts.tool) return [opts.tool as Tool];
+  const recorded = Object.keys(readState(scope, opts.cwd)) as Tool[];
   if (recorded.length) return recorded;
-  const markers = detectMarkers(scope, cwd);
-  if (markers.length === 1) return markers;
+  const detected = detectMarkers(scope, opts.cwd);
+  if (detected.length === 1) return detected;
   throw new Error("Pass --tool cursor|claude|codex (multiple or no tool markers)");
 }
-
-function itemsForInstall(scope: Scope, opts: CommonOpts): SelectedItem[] {
-  const all = allItems();
-  if (opts.item) {
-    if (!opts.pack) throw new Error("--item requires --pack");
-    return resolveRequires([findItem(opts.pack, opts.item)]);
+async function chooseTools(scope: Scope, opts: CommonOpts): Promise<Tool[]> {
+  try { return resolveTools(scope, opts); } catch (error) {
+    if (!tty() || opts.tool) throw error;
+    const rl = readline.createInterface({ input, output });
+    try {
+      const tool = (await rl.question("Tool? [cursor/claude/codex]: ")).trim().toLowerCase();
+      return resolveTools(scope, { ...opts, tool });
+    } finally { rl.close(); }
   }
+}
+function selected(scope: Scope, opts: CommonOpts): SelectedItem[] {
+  if (opts.item) return resolveRequires([findItem(opts.pack!, opts.item)]);
   if (opts.pack) {
-    const packItems = all.filter((x) => x.pack === opts.pack);
-    if (!packItems.length) throw new Error(`Unknown pack ${opts.pack}`);
-    const max = (opts.priority as "p0" | "p1" | "p2") ?? "p0";
-    return resolveRequires(filterByPriority(packItems, max));
+    const manifest = loadPack(opts.pack);
+    const items = allItems().filter((x) => x.pack === opts.pack);
+    if (!items.length && !manifest.relay) throw new Error(`Unknown pack ${opts.pack}`);
+    return resolveRequires(filterByPriority(items, (opts.priority ?? "p0") as "p0" | "p1" | "p2"));
   }
   const lock = readLock(scope, opts.cwd);
-  if (lock.items.length) {
-    return resolveRequires(lock.items.map((x) => findItem(x.pack, x.id)));
-  }
-  return resolveRequires(filterByPriority(all.filter((x) => x.pack === "general"), "p0"));
+  return resolveRequires(lock.items.length ? lock.items.map((x) => findItem(x.pack, x.id))
+    : filterByPriority(allItems().filter((x) => x.pack === "general"), (opts.priority ?? "p0") as "p0" | "p1" | "p2"));
 }
-
-function copySkillExtras(fromDir: string, toDir: string, written: string[]): void {
-  for (const extra of ["references", "scripts"]) {
-    const src = path.join(fromDir, extra);
-    if (!existsSync(src)) continue;
-    mkdirSync(path.join(toDir, extra), { recursive: true });
-    copyDir(src, path.join(toDir, extra), written);
+function filesUnder(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  if (lstatSync(dir).isSymbolicLink()) throw new Error(`Refusing symlink source: ${dir}`);
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const p = path.join(dir, entry.name);
+    if (entry.isSymbolicLink()) throw new Error(`Refusing symlink source: ${p}`);
+    return entry.isDirectory() ? filesUnder(p) : [p];
+  });
+}
+function shellArg(value: string): string {
+  if (process.platform === "win32") {
+    if (/["%\r\n]/.test(value)) throw new Error("Unsupported character in Windows hook path");
+    return `"${value.replace(/\\/g, "/")}"`;
+  }
+  return `'${value.replace(/'/g, `'"'"'`)}'`;
+}
+function hookInfo(sel: SelectedItem, tool: Tool, scope: Scope, cwd?: string) {
+  const p = toolPaths(tool, scope, cwd);
+  const script = path.join(p.hookScripts!, `${sel.item.id}.mjs`);
+  const event = tool === "cursor" ? sel.item.id : ({ beforeShellExecution: "PreToolUse", afterFileEdit: "PostToolUse", sessionEnd: "Stop" }[sel.item.id]);
+  if (!event) throw new Error(`No hook mapping: ${tool}:${sel.item.id}`);
+  return { file: p.hooks!, event, command: `${shellArg(process.execPath)} ${shellArg(script)} --tool ${tool}`, legacyCommand: script };
+}
+function refresh(entry: StateFile[string]): void {
+  entry.items = Object.keys(entry.installations ?? {});
+  entry.paths = [...new Set(Object.values(entry.installations ?? {}).flatMap((r) => [...r.files, ...(r.blockFile ? [r.blockFile] : []), ...(r.hook ? [r.hook.file] : [])]))];
+}
+/** Migrate old flat paths using exact destinations; never use substring ownership. */
+function migrate(state: StateFile, scope: Scope, cwd?: string): void {
+  const lock = readLock(scope, cwd);
+  for (const [tool, entry] of Object.entries(state) as [Tool, StateFile[string]][]) {
+    entry.installations ??= {};
+    const p = toolPaths(tool, scope, cwd);
+    for (const key of entry.items) {
+      if (entry.installations[key]) continue;
+      const [pack, id] = key.split(":");
+      const sel = findItem(pack, id);
+      const r: Installation = { version: lock.items.find((x) => x.pack === pack && x.id === id)?.version ?? "0.0.0", files: [] };
+      if (sel.item.kind === "skill") {
+        const dir = path.join(p.skills, id);
+        const marker = path.join(dir, ".packfuse");
+        if (existsSync(marker) && readFileSync(marker, "utf8").trim() === key) {
+          // Legacy state did not track extras: claim only known source files, preserving user extras.
+          r.files = [path.join(dir, "SKILL.md"), marker,
+            ...["references", "scripts"].flatMap((sub) => filesUnder(path.join(skillDir(sel), sub)).map((f) => path.join(dir, path.relative(skillDir(sel), f))))];
+        } else r.external = true;
+      } else if (sel.item.kind === "rule") {
+        const rule = ruleMarkdown(sel, tool);
+        if (tool === "cursor" && scope === "home") r.manual = true;
+        else if (tool === "cursor") r.files = [path.join(p.rules, `${id}.mdc`)].filter((f) => entry.paths.includes(f));
+        else if (tool === "claude" && rule.globs) r.files = [path.join(p.rules, `${id}.md`)].filter((f) => entry.paths.includes(f));
+        else if (p.ruleFile && existsSync(p.ruleFile) && readFileSync(p.ruleFile, "utf8").includes(`<!-- pack:${key} -->`)) r.blockFile = p.ruleFile;
+      } else if (sel.item.kind === "agent") {
+        r.files = [path.join(p.agents, `${id}.${tool === "codex" ? "toml" : "md"}`)].filter((f) => entry.paths.includes(f));
+      } else if (p.hooks) {
+        r.hook = hookInfo(sel, tool, scope, cwd);
+        r.files = [r.hook.legacyCommand!];
+      }
+      entry.installations[key] = r;
+    }
+    refresh(entry);
   }
 }
-
-function copyDir(src: string, dest: string, written: string[]): void {
-  mkdirSync(dest, { recursive: true });
-  for (const name of readdirSync(src)) {
-    const s = path.join(src, name);
-    const d = path.join(dest, name);
-    if (statSync(s).isDirectory()) copyDir(s, d, written);
-    else {
-      copyFileSync(s, d);
-      written.push(d);
+function assertOwnedPaths(record: Installation, sel: SelectedItem, tool: Tool, scope: Scope, cwd?: string): void {
+  const p = toolPaths(tool, scope, cwd);
+  const skillRoot = path.join(p.skills, sel.item.id);
+  for (const file of record.files) {
+    const resolved = path.resolve(file);
+    const valid = sel.item.kind === "skill" ? resolved.startsWith(skillRoot + path.sep)
+      : sel.item.kind === "rule" ? resolved === path.join(p.rules, `${sel.item.id}.${tool === "cursor" ? "mdc" : "md"}`)
+      : sel.item.kind === "agent" ? resolved === path.join(p.agents, `${sel.item.id}.${tool === "codex" ? "toml" : "md"}`)
+      : p.hookScripts && resolved === path.join(p.hookScripts, `${sel.item.id}.mjs`);
+    if (!valid) throw new Error(`State path outside expected item destination: ${file}`);
+  }
+  if (record.blockFile && record.blockFile !== p.ruleFile) throw new Error("Invalid shared rule path in state");
+  if (record.hook) {
+    const expected = hookInfo(sel, tool, scope, cwd);
+    if (record.hook.file !== expected.file || record.hook.event !== expected.event ||
+      record.hook.command !== expected.command || record.hook.legacyCommand !== expected.legacyCommand) {
+      // Node may move between installs. Allow an old command only if it names the exact script.
+      if (record.hook.file !== expected.file || record.hook.event !== expected.event ||
+        !record.hook.command.includes(shellArg(expected.legacyCommand!))) throw new Error("Invalid hook state");
     }
   }
 }
-
-function mergeJsonHook(file: string, key: string, entry: unknown, dry: boolean): void {
-  let json: Record<string, unknown> = {};
-  if (existsSync(file)) json = JSON.parse(readFileSync(file, "utf8"));
-  if (!json.version) json.version = 1;
-  const hooks = (json.hooks as Record<string, unknown[]>) ?? {};
-  const list = hooks[key] ?? [];
-  const marker = JSON.stringify(entry);
-  if (!list.some((x) => JSON.stringify(x) === marker)) list.push(entry as never);
-  hooks[key] = list;
-  json.hooks = hooks;
-  if (!dry) {
-    mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, JSON.stringify(json, null, 2) + "\n");
+function editHook(tx: FileTransaction, info: NonNullable<Installation["hook"]>, tool: Tool, id: string, add: boolean): void {
+  const body = tx.read(info.file);
+  const json = body ? JSON.parse(body) : {};
+  if (!json || typeof json !== "object" || Array.isArray(json)) throw new Error(`Invalid hook config ${info.file}`);
+  json.hooks ??= {};
+  if (!json.hooks || typeof json.hooks !== "object" || Array.isArray(json.hooks)) throw new Error(`Invalid hooks ${info.file}`);
+  const entries = json.hooks[info.event] ?? [];
+  if (!Array.isArray(entries)) throw new Error(`Invalid hook event ${info.event}`);
+  const matches = (command: unknown) => command === info.command || command === info.legacyCommand;
+  const kept = entries.flatMap((entry: any) => {
+    if (tool === "cursor") return matches(entry.command) ? [] : [entry];
+    if (!Array.isArray(entry.hooks)) return [entry];
+    const hooks = entry.hooks.filter((h: any) => !matches(h.command));
+    return hooks.length ? [{ ...entry, hooks }] : [];
+  });
+  if (add) kept.push(tool === "cursor" ? { command: info.command }
+    : { matcher: id === "beforeShellExecution" ? "Bash" : "Edit|Write|MultiEdit", hooks: [{ type: "command", command: info.command }] });
+  if (kept.length) json.hooks[info.event] = kept;
+  else delete json.hooks[info.event];
+  if (tool === "cursor") json.version ??= 1;
+  if (body || add) tx.write(info.file, JSON.stringify(json, null, 2) + "\n");
+}
+function removeRecord(tx: FileTransaction, r: Installation, sel: SelectedItem, tool: Tool): void {
+  if (r.external || r.manual) return;
+  for (const f of r.files) tx.remove(f);
+  if (r.blockFile) tx.write(r.blockFile, removeMarked(tx.read(r.blockFile), sel.pack, sel.item.id));
+  if (r.hook) editHook(tx, r.hook, tool, sel.item.id, false);
+}
+function persist(tx: FileTransaction, state: StateFile, scope: Scope, opts: CommonOpts, lock: ReturnType<typeof readLock>): void {
+  if (scope === "project") {
+    const ignore = path.join(path.dirname(statePath(scope, opts.cwd)), ".gitignore");
+    const previous = tx.read(ignore);
+    if (!previous.split(/\r?\n/).includes("/state.json")) tx.write(ignore, previous + (previous && !previous.endsWith("\n") ? "\n" : "") + "/state.json\n");
   }
+  tx.write(statePath(scope, opts.cwd), JSON.stringify(state, null, 2) + "\n");
+  tx.write(lockPath(scope, opts.cwd), JSON.stringify(lock, null, 2) + "\n");
 }
-
-function writeFile(file: string, content: string, dry: boolean, written: string[]): void {
-  written.push(file);
-  if (dry) return;
-  mkdirSync(path.dirname(file), { recursive: true });
-  writeFileSync(file, content);
+function report(tx: FileTransaction, dry: boolean): void {
+  console.log(dry ? "dry-run: no files changed" : "completed");
+  for (const [f, body] of tx.changes) console.log(`  ${body === null ? "remove" : "write"} ${f}`);
+  console.log(`files=${tx.changes.size}`);
 }
-
-export async function install(opts: CommonOpts): Promise<void> {
-  readOrCreateState.reset();
+async function applyInstall(opts: CommonOpts, updating: boolean): Promise<void> {
   const scope = await resolveScope(opts);
-  const tools = resolveTools(scope, { ...opts, cwd: opts.cwd });
-  const items = itemsForInstall(scope, opts);
-  const dry = Boolean(opts.dryRun);
-  const written: string[] = [];
-  const paste: string[] = [];
-  let tokenText = "";
-
+  const state = readState(scope, opts.cwd);
+  if (updating && !Object.keys(state).length) { console.log("nothing installed in this scope"); return; }
+  const tools = await chooseTools(scope, opts);
+  migrate(state, scope, opts.cwd);
+  const lock = readLock(scope, opts.cwd);
+  const tx = new FileTransaction();
+  const requested = updating ? [] : selected(scope, opts);
+  let changed = false;
   for (const tool of tools) {
-    const paths = toolPaths(tool, scope, opts.cwd);
+    const entry = state[tool] ?? { paths: [], items: [], installations: {} };
+    entry.installations ??= {};
+    const seeds = updating ? entry.items.map((key) => { const [p, id] = key.split(":"); return findItem(p, id); }) : requested;
+    const items = resolveRequires(seeds).filter((sel) => {
+      if (sel.item.tools.includes(tool)) return true;
+      console.log(`skip ${keyOf(sel)} (not for ${tool})`); return false;
+    });
+    let tokenText = "";
     for (const sel of items) {
-      if (!sel.item.tools.includes(tool)) {
-        console.log(`skip ${sel.pack}:${sel.item.id} (not for ${tool})`);
-        continue;
+      const key = keyOf(sel);
+      for (const dep of sel.item.requires ?? []) {
+        const target = items.find((s) => keyOf(s) === dep);
+        if (!target) throw new Error(`${key} requires ${dep}, unavailable for ${tool}`);
       }
-      const key = `${sel.pack}:${sel.item.id}`;
+      const old = entry.installations[key];
+      if (old) assertOwnedPaths(old, sel, tool, scope, opts.cwd);
+      if (updating && old?.version === sel.item.version && !old.external) continue;
+      const p = toolPaths(tool, scope, opts.cwd);
+      const r: Installation = { version: sel.item.version, files: [] };
+      const writeOwned = (f: string, body: string | Buffer) => {
+        if (existsSync(f) && !old?.files.includes(f)) throw new Error(`Refusing to overwrite unmanaged file: ${f}`);
+        tx.write(f, body); r.files.push(f);
+      };
       if (sel.item.kind === "skill") {
-        const dest = path.join(paths.skills, sel.item.id);
-        const existing = listSkillNamesOnDisk(paths.skills);
-        const from = skillDir(sel);
-        if (existing.includes(sel.item.id) && !existsSync(path.join(dest, ".packfuse"))) {
-          console.log(`skip ${key} (already installed as ${sel.item.id})`);
-          continue;
+        const dir = path.join(p.skills, sel.item.id);
+        if (existsSync(dir) && (!old || old.external)) {
+          if (!existsSync(path.join(dir, "SKILL.md"))) throw new Error(`Unmanaged skill directory: ${dir}`);
+          r.external = true;
+          console.log(`skip ${key} (external skill; not owned by packfuse)`);
+        } else {
+          writeOwned(path.join(dir, "SKILL.md"), skillMarkdown(sel, tool));
+          writeOwned(path.join(dir, ".packfuse"), key);
+          for (const sub of ["references", "scripts", "assets", "agents"]) {
+            for (const src of filesUnder(path.join(skillDir(sel), sub))) {
+              const dest = path.join(dir, path.relative(skillDir(sel), src));
+              writeOwned(dest, readFileSync(src));
+            }
+          }
+          if (tool === "codex") {
+            const file = path.join(dir, "agents", "openai.yaml");
+            const metadata = YAML.parse(tx.read(file) || "{}");
+            metadata.policy = { ...metadata.policy, allow_implicit_invocation: sel.item.invoke !== "slash" };
+            writeOwned(file, YAML.stringify(metadata));
+          }
+          if (sel.item.invoke === "auto") tokenText += String(parseMd(path.join(skillDir(sel), "SKILL.md")).data.description ?? "") + "\n";
         }
-        const md = skillMarkdown(sel, tool);
-        tokenText += md.slice(0, md.indexOf("\n---", 4) + 4) + "\n";
-        writeFile(path.join(dest, "SKILL.md"), md, dry, written);
-        if (!dry) {
-          writeFileSync(path.join(dest, ".packfuse"), key);
-          copySkillExtras(from, dest, written);
-        }
-        addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, path.join(dest, "SKILL.md"), key);
+        if (sel.item.vendor) console.log(`vendor setup (manual; not executed): ${sel.item.vendor}`);
       } else if (sel.item.kind === "rule") {
-        const r = ruleMarkdown(sel, tool);
-        tokenText += r.body + "\n";
-        if (tool === "cursor" && paths.userRulesPaste) {
-          paste.push(`# ${sel.pack}:${sel.item.id}\n${r.body}`);
-          continue;
-        }
-        if (tool === "cursor") {
-          const f = path.join(paths.rules, `${sel.item.id}.mdc`);
-          writeFile(f, cursorMdc(sel), dry, written);
-          addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, f, key);
-        } else if (r.globs && tool === "claude") {
-          const f = path.join(paths.rules, `${sel.item.id}.md`);
-          writeFile(f, `# ${r.description}\n\n${r.body}\n`, dry, written);
-          addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, f, key);
-        } else if (paths.ruleFile) {
-          const prev = existsSync(paths.ruleFile) ? readFileSync(paths.ruleFile, "utf8") : "";
-          const next = upsertMarked(prev, sel.pack, sel.item.id, r.body);
-          writeFile(paths.ruleFile, next, dry, written);
-          addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, paths.ruleFile, key);
+        const rule = ruleMarkdown(sel, tool);
+        if (rule.always && !rule.globs) tokenText += rule.body + "\n";
+        if (tool === "cursor" && scope === "home") {
+          r.manual = true; console.log(`Paste into Cursor User Rules (${key}):\n${rule.body}`);
+        } else if (tool === "cursor") writeOwned(path.join(p.rules, `${sel.item.id}.mdc`), cursorMdc(sel));
+        else if (tool === "claude" && rule.globs) writeOwned(path.join(p.rules, `${sel.item.id}.md`), `---\n${YAML.stringify({ paths: [rule.globs] })}---\n\n${rule.body}\n`);
+        else if (p.ruleFile) {
+          r.blockFile = p.ruleFile;
+          const body = rule.globs ? `Applies to: ${rule.globs}\n\n${rule.body}` : rule.body;
+          tx.write(p.ruleFile, upsertMarked(tx.read(p.ruleFile), sel.pack, sel.item.id, body));
         }
       } else if (sel.item.kind === "agent") {
-        if (tool === "codex") {
-          const f = path.join(paths.agents, `${sel.item.id}.toml`);
-          writeFile(f, agentCodexToml(sel), dry, written);
-          addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, f, key);
-        } else {
-          const f = path.join(paths.agents, `${sel.item.id}.md`);
-          writeFile(f, agentCursorClaude(sel), dry, written);
-          addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, f, key);
-        }
-      } else if (sel.item.kind === "hook") {
-        if (!paths.hooks) {
-          console.log(`skip ${key} hook (no mapping for ${tool})`);
-          continue;
-        }
-        const scriptSrc = hookScript(sel);
-        const scriptDest = path.join(paths.hookScripts ?? path.dirname(paths.hooks), `${sel.item.id}.mjs`);
-        if (existsSync(scriptSrc)) {
-          writeFile(scriptDest, readFileSync(scriptSrc, "utf8"), dry, written);
-        }
-        const entry = {
-          command: scriptDest,
-          packfuse: key,
-        };
-        if (tool === "cursor") {
-          mergeJsonHook(paths.hooks, sel.item.id, { command: scriptDest }, dry);
-          written.push(paths.hooks);
-        } else if (tool === "claude") {
-          mergeClaudeHook(paths.hooks, sel.item.id, scriptDest, dry);
-          written.push(paths.hooks);
-        }
-        addStatePath(readOrCreateState.cache(scope, opts.cwd), tool, paths.hooks, key);
+        writeOwned(path.join(p.agents, `${sel.item.id}.${tool === "codex" ? "toml" : "md"}`), tool === "codex" ? agentCodexToml(sel) : agentCursorClaude(sel));
+      } else if (p.hooks && p.hookScripts) {
+        if (old?.hook) editHook(tx, old.hook, tool, sel.item.id, false);
+        r.hook = hookInfo(sel, tool, scope, opts.cwd);
+        writeOwned(r.hook.legacyCommand!, readFileSync(hookScript(sel), "utf8"));
+        editHook(tx, r.hook, tool, sel.item.id, true);
+        if (scope === "home") console.log("Note: home hooks apply across this user's repositories.");
       }
+      // Remove only tracked obsolete files, never user-added files.
+      for (const f of old?.files ?? []) if (!r.files.includes(f)) tx.remove(f);
+      if (old?.blockFile && old.blockFile !== r.blockFile) tx.write(old.blockFile, removeMarked(tx.read(old.blockFile), sel.pack, sel.item.id));
+      if (old?.hook && !r.hook) editHook(tx, old.hook, tool, sel.item.id, false);
+      entry.installations[key] = r;
+      addLockItem(lock, sel.pack, sel.item.id, sel.item.version, sel.item.priority);
+      changed = true;
     }
+    refresh(entry);
+    if (entry.items.length) state[tool] = entry;
+    console.log(`${tool}: estimated selected always-on tokens=${estimateTokens(tokenText)} (cl100k_base; descriptions + unconditional rules; excludes host prompts)`);
   }
-
-  const state = readOrCreateState.cache(scope, opts.cwd);
-  const lock = readLock(scope, opts.cwd);
-  for (const sel of items) {
-    addLockItem(lock, sel.pack, sel.item.id, sel.item.version, sel.item.priority);
-  }
-  if (!dry) {
-    writeLock(scope, lock, opts.cwd);
-    writeState(scope, state, opts.cwd);
-  }
-
-  const tokens = estimateTokens(tokenText);
-  console.log(dry ? "dry-run (estimate, tiktoken cl100k-compatible gpt-4 encoding)" : "installed");
-  console.log(`scope=${scope} tools=${tools.join(",")}`);
-  console.log(`items=${items.map((x) => `${x.pack}:${x.item.id}`).join(", ") || "(none)"}`);
-  console.log(`files=${written.length}`);
-  console.log(`estimated always-on tokens=${tokens}`);
-  if (scope === "home") console.log("Note: hooks installed with --home apply to every repository.");
-  if (paste.length) {
-    console.log("\nPaste into Cursor Customize → User Rules:\n");
-    console.log(paste.join("\n\n"));
+  if (changed) persist(tx, state, scope, opts, lock);
+  if (!opts.dryRun) tx.commit();
+  if (!updating && opts.pack) runRelay(loadPack(opts.pack).relay, tools, scope, opts);
+  report(tx, Boolean(opts.dryRun));
+}
+const relayAgent: Record<Tool, string> = { cursor: "cursor", claude: "claude-code", codex: "codex" };
+export function relayArgv(relay: PackRelay, tool: Tool, scope: Scope): string[] {
+  return ["--yes", "skills", "add", relay.source, "-y", "-a", relayAgent[tool], ...(scope === "home" ? ["-g"] : []), ...relay.skills.flatMap((skill) => ["--skill", skill])];
+}
+function defaultRelayRunner(args: string[], cwd: string): void {
+  const result = spawnSync("npx", args, { cwd, stdio: "inherit", shell: process.platform === "win32" });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error(`Official skill install failed (exit ${result.status})`);
+}
+function runRelay(relay: PackRelay | undefined, tools: Tool[], scope: Scope, opts: CommonOpts): void {
+  if (!relay) return;
+  const cwd = scope === "home" ? homeDir() : projectDir(opts.cwd);
+  for (const tool of tools) {
+    const args = relayArgv(relay, tool, scope);
+    console.log(`relay ${opts.pack} -> ${tool}: npx ${args.join(" ")}`);
+    console.log(`Official skills (${relay.skills.join(", ")}) are installed by the skills CLI. packfuse does not copy them, and uninstall does not remove them.`);
+    if (opts.dryRun) console.log("dry-run: relay not executed");
+    else (opts.relayRunner ?? defaultRelayRunner)(args, cwd);
   }
 }
-
-const readOrCreateState = {
-  _cache: null as ReturnType<typeof readState> | null,
-  cache(scope: Scope, cwd?: string) {
-    if (!this._cache) this._cache = readState(scope, cwd);
-    return this._cache;
-  },
-  reset() {
-    this._cache = null;
-  },
-};
-
-function mergeClaudeHook(file: string, event: string, command: string, dry: boolean): void {
-  let json: Record<string, unknown> = {};
-  if (existsSync(file)) json = JSON.parse(readFileSync(file, "utf8"));
-  const map: Record<string, string> = {
-    beforeShellExecution: "PreToolUse",
-    afterFileEdit: "PostToolUse",
-    sessionEnd: "Stop",
-  };
-  const claudeEvent = map[event] ?? event;
-  const hooks = (json.hooks as Record<string, unknown[]>) ?? {};
-  const list = (hooks[claudeEvent] as unknown[]) ?? [];
-  const entry = { matcher: event === "beforeShellExecution" ? "Bash" : "", hooks: [{ type: "command", command }] };
-  if (!JSON.stringify(list).includes(command)) list.push(entry);
-  hooks[claudeEvent] = list;
-  json.hooks = hooks;
-  if (!dry) {
-    mkdirSync(path.dirname(file), { recursive: true });
-    writeFileSync(file, JSON.stringify(json, null, 2) + "\n");
-  }
-}
-
+export async function install(opts: CommonOpts): Promise<void> { await applyInstall(opts, false); }
+export async function update(opts: CommonOpts): Promise<void> { await applyInstall(opts, true); }
 export async function uninstall(opts: CommonOpts): Promise<void> {
   const scope = await resolveScope(opts);
   if (!opts.tool && !opts.all) throw new Error("uninstall requires --tool or --all");
-  const tools = opts.all
-    ? (Object.keys(readState(scope, opts.cwd)) as Tool[])
-    : resolveTools(scope, opts);
+  if (opts.pack) {
+    const manifest = loadPack(opts.pack);
+    if (!allItems().some((s) => s.pack === opts.pack)) {
+      if (!manifest.relay) throw new Error(`Unknown pack ${opts.pack}`);
+      console.log(`packfuse does not remove official skills for ${opts.pack} (${manifest.relay.skills.join(", ")}).`);
+      return;
+    }
+  }
+  if (opts.item) findItem(opts.pack!, opts.item);
   const state = readState(scope, opts.cwd);
+  migrate(state, scope, opts.cwd);
+  const tools = opts.all ? Object.keys(state) as Tool[] : resolveTools(scope, opts);
   const lock = readLock(scope, opts.cwd);
-  const targets = opts.item
-    ? [`${opts.pack}:${opts.item}`]
-    : opts.pack
-      ? lock.items.filter((x) => x.pack === opts.pack).map((x) => `${x.pack}:${x.id}`)
-      : lock.items.map((x) => `${x.pack}:${x.id}`);
-
+  const tx = new FileTransaction();
+  const removed = new Set<string>();
   for (const tool of tools) {
-    for (const key of targets) {
+    const entry = state[tool]; if (!entry) continue;
+    const targets = entry.items.filter((key) => (!opts.pack || key.split(":")[0] === opts.pack) && (!opts.item || key.split(":")[1] === opts.item));
+    for (const key of entry.items.filter((key) => !targets.includes(key))) {
       const [pack, id] = key.split(":");
-      const paths = (state[tool]?.paths ?? []).filter((p) => p.includes(id) || p.endsWith("CLAUDE.md") || p.endsWith("AGENTS.md"));
-      for (const p of paths) {
-        if (p.endsWith("CLAUDE.md") || p.endsWith("AGENTS.md")) {
-          if (existsSync(p)) writeFileSync(p, removeMarked(readFileSync(p, "utf8"), pack, id));
-        } else if (p.endsWith("SKILL.md")) {
-          rmSync(path.dirname(p), { recursive: true, force: true });
-        } else if (existsSync(p) && (p.endsWith(".mdc") || p.endsWith(".md") || p.endsWith(".toml") || p.endsWith(".mjs"))) {
-          rmSync(p, { force: true });
-        }
-      }
-      removeStateItem(state, tool, key, paths);
+      for (const dep of findItem(pack, id).item.requires ?? []) if (targets.includes(dep)) throw new Error(`Cannot remove ${dep}; required by ${key} on ${tool}`);
+    }
+    for (const key of targets) {
+      const [pack, id] = key.split(":"); const sel = findItem(pack, id);
+      const r = entry.installations![key];
+      assertOwnedPaths(r, sel, tool, scope, opts.cwd);
+      removeRecord(tx, r, sel, tool);
+      if (r.external) console.log(`preserved external skill ${key}`);
+      if (r.manual) console.log(`Remove ${key} from Cursor User Rules manually if pasted.`);
+      delete entry.installations![key]; removed.add(key);
+    }
+    refresh(entry);
+    if (!entry.items.length) delete state[tool];
+  }
+  lock.items = lock.items.filter((i) => !removed.has(`${i.pack}:${i.id}`) || itemStillInstalled(state, `${i.pack}:${i.id}`));
+  if (removed.size) persist(tx, state, scope, opts, lock);
+  if (!opts.dryRun) {
+    tx.commit();
+    // Empty skill folders must not block a later reinstall. Never remove nonempty folders.
+    for (const [file, body] of tx.changes) if (body === null) {
+      let dir = path.dirname(file);
+      for (let i = 0; i < 4; i++, dir = path.dirname(dir)) { try { rmdirSync(dir); } catch { break; } }
     }
   }
-  for (const key of targets) {
-    const [pack, id] = key.split(":");
-    if (!itemStillInstalled(state, key)) removeLockItem(lock, pack, id);
-  }
-  writeState(scope, state, opts.cwd);
-  writeLock(scope, lock, opts.cwd);
-  console.log(`uninstalled ${targets.join(", ")} from ${tools.join(",")}`);
+  report(tx, Boolean(opts.dryRun));
 }
-
-export async function update(opts: CommonOpts): Promise<void> {
-  const scope = await resolveScope(opts);
-  const lock = readLock(scope, opts.cwd);
-  opts.pack = undefined;
-  opts.item = undefined;
-  if (!lock.items.length) {
-    console.log("nothing in lock");
-    return;
-  }
-  await install({ ...opts, pack: undefined, item: undefined });
-}
-
 export async function listCmd(opts: CommonOpts): Promise<void> {
-  const scope = opts.home || opts.project || opts.scope ? await resolveScope(opts) : null;
-  console.log("available:");
-  for (const x of allItems()) {
-    console.log(`  ${x.pack}:${x.item.id} ${x.item.kind} ${x.item.priority} [${x.item.tools.join(",")}]`);
+  validateOptions(opts);
+  for (const id of loadIndex().packs) {
+    const relay = loadPack(id).relay;
+    if (relay) console.log(`${id} relay [${relay.skills.join(",")}] ${relay.source}`);
   }
-  if (scope) {
-    const lock = readLock(scope, opts.cwd);
-    console.log(`installed (${scope}):`);
-    for (const i of lock.items) console.log(`  ${i.pack}:${i.id}@${i.version}`);
+  for (const s of allItems()) console.log(`${keyOf(s)} ${s.item.kind} ${s.item.priority} [${s.item.tools.join(",")}]`);
+  if (!opts.home && !opts.project && !opts.scope) return;
+  const scope = await resolveScope(opts);
+  const state = readState(scope, opts.cwd); migrate(state, scope, opts.cwd);
+  for (const [tool, entry] of Object.entries(state)) {
+    if (opts.tool && tool !== opts.tool) continue;
+    for (const [key, r] of Object.entries(entry.installations ?? {})) console.log(`${scope}/${tool}: ${key}@${r.version}${r.external ? " (external)" : r.manual ? " (manual paste)" : ""}`);
   }
 }
-
 export async function doctor(opts: CommonOpts): Promise<void> {
-  const scopes: Scope[] = ["home", "project"];
-  const autoP0 = allItems().filter((x) => x.pack === "general" && x.item.priority === "p0" && x.item.invoke === "auto" && x.item.kind === "skill");
+  validateOptions(opts);
+  const scopes: Scope[] = opts.home || opts.project || opts.scope ? [await resolveScope(opts)] : ["home", "project"];
+  const tools = opts.tool ? [opts.tool as Tool] : toolNames;
+  const problems: string[] = [];
   for (const scope of scopes) {
-    const lock = readLock(scope, opts.cwd);
-    const state = readState(scope, opts.cwd);
-    console.log(`--- ${scope} ---`);
-    for (const item of lock.items) {
-      const key = `${item.pack}:${item.id}`;
-      const inState = itemStillInstalled(state, key);
-      if (!inState) console.log(`lock/state mismatch: ${key} in lock, missing in state`);
-    }
-    const homeSkills = listSkillNamesOnDisk(toolPaths("cursor", "home", opts.cwd).skills);
-    const projSkills = listSkillNamesOnDisk(toolPaths("cursor", "project", opts.cwd).skills);
-    for (const n of homeSkills) {
-      if (projSkills.includes(n)) console.log(`duplicate skill ${n} in home and project`);
-    }
-    for (const skill of autoP0) {
-      const name = skill.item.id;
-      const anywhere = ["cursor", "claude", "codex"].some((t) => {
-        const p = toolPaths(t as Tool, scope, opts.cwd);
-        return listSkillNamesOnDisk(p.skills).includes(name);
-      });
-      if (!anywhere && lock.items.some((x) => x.id === name)) {
-        const onDisk = ["cursor", "claude", "codex"].some((t) =>
-          listSkillNamesOnDisk(toolPaths(t as Tool, scope, opts.cwd).skills).includes(name),
-        );
-        if (!onDisk) {
-          const foreign = ["cursor", "claude", "codex"].some((t) =>
-            listSkillNamesOnDisk(toolPaths(t as Tool, scope, opts.cwd).skills).includes(name),
-          );
-          if (!foreign) console.log(`loop skill missing: ${name}`);
+    const state = readState(scope, opts.cwd); const lock = readLock(scope, opts.cwd);
+    migrate(state, scope, opts.cwd);
+    for (const item of lock.items) if (!itemStillInstalled(state, `${item.pack}:${item.id}`)) problems.push(`${scope}: lock/state mismatch ${item.pack}:${item.id}`);
+    for (const tool of tools) {
+      const entry = state[tool]; if (!entry) continue;
+      const p = toolPaths(tool, scope, opts.cwd);
+      for (const [key, r] of Object.entries(entry.installations ?? {})) {
+        const [pack, id] = key.split(":"); const sel = findItem(pack, id);
+        if (!lock.items.some((i) => i.pack === pack && i.id === id)) problems.push(`${scope}/${tool}: state/lock mismatch ${key}`);
+        assertOwnedPaths(r, sel, tool, scope, opts.cwd);
+        if (r.external) {
+          if (!existsSync(path.join(p.skills, id, "SKILL.md"))) problems.push(`${scope}/${tool}: external skill missing ${key}`);
+          else console.log(`${scope}/${tool}: external skill ${key}`);
         }
-      } else if (anywhere && !lock.items.some((x) => x.id === name)) {
-        console.log(`already installed, skipped: ${name}`);
+        for (const f of r.files) if (!existsSync(f)) problems.push(`${scope}/${tool}: missing file ${f}`);
+        if (r.blockFile && (!existsSync(r.blockFile) || !readFileSync(r.blockFile, "utf8").includes(`<!-- pack:${key} -->`))) problems.push(`${scope}/${tool}: missing rule block ${key}`);
+        if (r.hook) {
+          const config = existsSync(r.hook.file) ? JSON.parse(readFileSync(r.hook.file, "utf8")) : {};
+          const entries = config.hooks?.[r.hook.event] ?? [];
+          const commands = tool === "cursor" ? entries.map((e: any) => e.command) : entries.flatMap((e: any) => (e.hooks ?? []).map((h: any) => h.command));
+          if (!commands.includes(r.hook.command) && !commands.includes(r.hook.legacyCommand)) problems.push(`${scope}/${tool}: missing hook entry ${key}`);
+        }
+        for (const dep of sel.item.requires ?? []) if (!entry.items.includes(dep)) problems.push(`${scope}/${tool}: ${key} missing dependency ${dep}`);
+        if (r.version !== sel.item.version) problems.push(`${scope}/${tool}: update available ${key} ${r.version} -> ${sel.item.version}`);
+      }
+      if (entry.items.some((k) => k.startsWith("general:"))) {
+        for (const sel of allItems().filter((s) => s.pack === "general" && s.item.kind === "skill" && s.item.priority === "p0" && s.item.invoke === "auto")) {
+          if (!["home", "project"].some((sc) => existsSync(path.join(toolPaths(tool, sc as Scope, opts.cwd).skills, sel.item.id, "SKILL.md")))) problems.push(`${scope}/${tool}: loop skill missing ${sel.item.id}`);
+        }
       }
     }
   }
+  for (const tool of tools) {
+    const home = listSkillNamesOnDisk(toolPaths(tool, "home", opts.cwd).skills);
+    const project = listSkillNamesOnDisk(toolPaths(tool, "project", opts.cwd).skills);
+    for (const name of home) if (project.includes(name)) problems.push(`${tool}: duplicate skill ${name} in home and project`);
+  }
+  problems.forEach((p) => console.log(p));
+  console.log(`doctor: ${problems.length} issue(s)`);
 }
-
-export function resetStateCache(): void {
-  readOrCreateState.reset();
-}
+/** Kept for clients of the old API; state is now local to each operation. */
+export function resetStateCache(): void {}

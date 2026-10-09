@@ -1,10 +1,17 @@
 ---
 name: token-budget
-description: "Use when the user wants a token breakdown of visible rules/skills/history and savings suggestions. Never write files. Estimates only."
+description: "Use when the user requests a token estimate for visible rules, skills, or supplied history. Do not use for billing reconciliation, hidden context inspection, or unrelated optimization."
 ---
 
 # Token budget
-1. Run `scripts/estimate.mjs` if present, else count files you can see.
-2. Table: rules, open skills, AGENTS/CLAUDE, chat if available.
-3. Suggest: move long procedures to skills, shorten auto descriptions, split references/.
-4. Hidden system prompts and billed tokens are out of scope. Label numbers as estimates.
+
+## Workflow
+
+1. List only visible files or text in scope. Distinguish always-on rules, automatic descriptions, and explicitly opened skill bodies.
+2. Run [the estimator](scripts/estimate.mjs) with explicit file paths. If js-tiktoken is unavailable, report its clearly labeled character-based approximation.
+3. Present per-file totals and avoid counting the same text twice. Record the tokenizer or approximation used.
+4. Suggest targeted reductions: move procedures into on-demand references and remove redundant wording. Do not edit without a request.
+
+## Completion
+
+An estimate table and prioritized savings suggestions, excluding hidden prompts and actual billed-token claims.

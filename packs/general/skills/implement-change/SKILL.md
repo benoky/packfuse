@@ -1,10 +1,17 @@
 ---
 name: implement-change
-description: "Use for a concrete code change: explore, minimal edit, verify. Do not use when the design is still open."
+description: "Use when a concrete, bounded code change is ready to implement. Do not use for open design decisions; use fix-ci for failing CI, systematic-debugging for an unknown cause, or TDD for an agreed behavior regression."
 ---
 
 # Implement change
-1. Find the existing pattern; follow it.
-2. Change only what the task needs.
-3. Run the targeted tests or checks.
-4. Stop. Do not commit unless asked.
+
+## Workflow
+
+1. Read applicable repository instructions and inspect the current diff. Find the code path and an existing example of the desired pattern.
+2. Translate the requested behavior into acceptance checks. Reuse an existing plan and protect unrelated user edits.
+3. Implement the smallest complete change, including directly affected callers and contracts. Add a regression test when behavior changes.
+4. Run targeted verification. Inspect the final diff for unrelated changes and report outcome, checks, and any unverified limitation.
+
+## Completion
+
+A reviewable change and evidence that the requested behavior works. Commit, push, and PR creation require the user request covered by the Git rule.

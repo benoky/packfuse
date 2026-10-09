@@ -1,20 +1,16 @@
 {
-  "id": "figma",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "figma-design-to-code",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "Figma official (wrapper)"
-    }
-  ]
+    "id": "figma",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "figma-design-to-code",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "Figma official (wrapper)"
+        }
+    ]
 }

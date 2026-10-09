@@ -1,48 +1,36 @@
 {
-  "id": "web-ui",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "frontend-design",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "anthropics/skills frontend-design (procedure)"
-    },
-    {
-      "id": "webapp-testing",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "anthropics/skills webapp-testing (procedure)"
-    },
-    {
-      "id": "web-design-guidelines",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "vercel-labs/agent-skills (wrapper)"
-    }
-  ]
+    "id": "web-ui",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "frontend-design",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "anthropics/skills frontend-design (procedure)"
+        },
+        {
+            "id": "webapp-testing",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "anthropics/skills webapp-testing (procedure)"
+        },
+        {
+            "id": "web-design-guidelines",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "vercel-labs/agent-skills (wrapper)"
+        }
+    ]
 }

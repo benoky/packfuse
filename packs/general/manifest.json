@@ -1,502 +1,353 @@
 {
-  "id": "general",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "requirements",
-      "kind": "rule",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "safety",
-      "kind": "rule",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "verification",
-      "kind": "rule",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "code-change",
-      "kind": "rule",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "git",
-      "kind": "rule",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "skill-promotion",
-      "kind": "rule",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self",
-      "requires": [
-        "general:propose-skill"
-      ]
-    },
-    {
-      "id": "brainstorming",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers brainstorming (procedure)"
-    },
-    {
-      "id": "writing-plans",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers writing-plans (procedure)"
-    },
-    {
-      "id": "implement-change",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "test-driven-development",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers test-driven-development (procedure)"
-    },
-    {
-      "id": "systematic-debugging",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers systematic-debugging (procedure)"
-    },
-    {
-      "id": "fix-ci",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "verification-before-completion",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers verification-before-completion (procedure)"
-    },
-    {
-      "id": "resolve-merge-conflicts",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "requesting-code-review",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers requesting-code-review (procedure)"
-    },
-    {
-      "id": "propose-skill",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "blast-radius",
-      "kind": "skill",
-      "priority": "p0",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "safe-refactor",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "receiving-code-review",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "obra/superpowers receiving-code-review (procedure)"
-    },
-    {
-      "id": "docs-from-code",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "onboard-repo",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "token-budget",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "handoff",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "update-deps",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "author-ci",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "flaky-test",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "auto",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "reproduce-minimal",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "explain-codebase",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "subagent-driven-development",
-      "kind": "skill",
-      "priority": "p2",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [
-        "general:reviewer",
-        "general:writing-plans"
-      ],
-      "version": "1.0.0",
-      "source": "obra/superpowers subagent-driven-development (procedure)"
-    },
-    {
-      "id": "adr",
-      "kind": "skill",
-      "priority": "p2",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "incident-lite",
-      "kind": "skill",
-      "priority": "p2",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "code-explorer",
-      "kind": "agent",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "reviewer",
-      "kind": "agent",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "verifier",
-      "kind": "agent",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "afterFileEdit",
-      "kind": "hook",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "beforeShellExecution",
-      "kind": "hook",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "sessionEnd",
-      "kind": "hook",
-      "priority": "p2",
-      "tools": [
-        "cursor"
-      ],
-      "version": "1.0.0",
-      "source": "self"
-    }
-  ]
+    "id": "general",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "requirements",
+            "kind": "rule",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "safety",
+            "kind": "rule",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "verification",
+            "kind": "rule",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "code-change",
+            "kind": "rule",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "git",
+            "kind": "rule",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "skill-promotion",
+            "kind": "rule",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self",
+            "requires": ["general:propose-skill"]
+        },
+        {
+            "id": "brainstorming",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers brainstorming (procedure)"
+        },
+        {
+            "id": "writing-plans",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers writing-plans (procedure)"
+        },
+        {
+            "id": "implement-change",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "test-driven-development",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers test-driven-development (procedure)"
+        },
+        {
+            "id": "systematic-debugging",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers systematic-debugging (procedure)"
+        },
+        {
+            "id": "fix-ci",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "verification-before-completion",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers verification-before-completion (procedure)"
+        },
+        {
+            "id": "resolve-merge-conflicts",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "requesting-code-review",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers requesting-code-review (procedure)"
+        },
+        {
+            "id": "propose-skill",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "blast-radius",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "safe-refactor",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "receiving-code-review",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "obra/superpowers receiving-code-review (procedure)"
+        },
+        {
+            "id": "docs-from-code",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "onboard-repo",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "token-budget",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "handoff",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "update-deps",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "author-ci",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "flaky-test",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "reproduce-minimal",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "explain-codebase",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "subagent-driven-development",
+            "kind": "skill",
+            "priority": "p2",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": ["general:reviewer", "general:writing-plans"],
+            "version": "1.0.0",
+            "source": "obra/superpowers subagent-driven-development (procedure)"
+        },
+        {
+            "id": "adr",
+            "kind": "skill",
+            "priority": "p2",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "incident-lite",
+            "kind": "skill",
+            "priority": "p2",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "code-explorer",
+            "kind": "agent",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "reviewer",
+            "kind": "agent",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "verifier",
+            "kind": "agent",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "afterFileEdit",
+            "kind": "hook",
+            "priority": "p1",
+            "tools": ["cursor", "claude"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "beforeShellExecution",
+            "kind": "hook",
+            "priority": "p1",
+            "tools": ["cursor", "claude"],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "sessionEnd",
+            "kind": "hook",
+            "priority": "p2",
+            "tools": ["cursor"],
+            "version": "1.0.0",
+            "source": "self"
+        }
+    ]
 }

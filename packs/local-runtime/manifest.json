@@ -1,34 +1,26 @@
 {
-  "id": "local-runtime",
-  "version": "1.0.0",
-  "items": [
-    {
-      "id": "dev-containers",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    },
-    {
-      "id": "docker-compose-dev",
-      "kind": "skill",
-      "priority": "p1",
-      "tools": [
-        "cursor",
-        "claude",
-        "codex"
-      ],
-      "invoke": "slash",
-      "requires": [],
-      "version": "1.0.0",
-      "source": "self"
-    }
-  ]
+    "id": "local-runtime",
+    "version": "1.0.0",
+    "items": [
+        {
+            "id": "dev-containers",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        },
+        {
+            "id": "docker-compose-dev",
+            "kind": "skill",
+            "priority": "p1",
+            "tools": ["cursor", "claude", "codex"],
+            "invoke": "slash",
+            "requires": [],
+            "version": "1.0.0",
+            "source": "self"
+        }
+    ]
 }

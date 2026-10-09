@@ -351,14 +351,12 @@ Define tools with tight schemas. Validate input. No secret logging.
 """, invoke="slash", p="p1", extras={"references/ts.md": "Prefer SDK types and explicit tool names.\n", "references/python.md": "Validate with typed models before side effects.\n"}, source="anthropics/skills mcp-builder (procedure)")]
 pack("tools", tools_p)
 
-# docs wrappers
-docs = []
-for sid, label in [("docs-pdf", "PDF"), ("docs-docx", "Word"), ("docs-xlsx", "spreadsheets"), ("docs-pptx", "slides")]:
-    docs.append(skill("docs", sid, f"Wrapper: use the official Anthropic {label} skill. This pack does not include vendor source.", f"""
-# {label}
-If the official `{sid.replace('docs-','')}` skill is not installed, tell the user to install it from Anthropic skills. Do not invent binary parsers.
-""", invoke="slash", p="p1", source=f"anthropics/skills {sid.replace('docs-','')} (wrapper)"))
-pack("docs", docs)
+docs = ROOT / "docs"
+docs.mkdir(parents=True, exist_ok=True)
+(docs / "manifest.json").write_text(json.dumps({
+    "id": "docs", "version": V, "items": [],
+    "relay": {"source": "https://github.com/anthropics/skills", "skills": ["pdf", "docx", "pptx", "xlsx"]},
+}, indent=2) + "\n", encoding="utf-8")
 
 (ROOT / "index.json").write_text(json.dumps({"packs": ["general", "git", "web-ui", "react", "figma", "api", "local-runtime", "security", "tools", "docs"]}, indent=2) + "\n", encoding="utf-8")
 print("wrote packs")

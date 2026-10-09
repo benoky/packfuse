@@ -15,10 +15,16 @@ export interface ManifestItem {
   vendor?: string;
 }
 
+export interface PackRelay {
+  source: string;
+  skills: string[];
+}
+
 export interface PackManifest {
   id: string;
   version: string;
   items: ManifestItem[];
+  relay?: PackRelay;
 }
 
 export interface PackIndex {
@@ -36,8 +42,23 @@ export interface LockFile {
   items: LockItem[];
 }
 
+export interface Installation {
+  version: string;
+  files: string[];
+  blockFile?: string;
+  hook?: { file: string; event: string; command: string; legacyCommand?: string };
+  external?: boolean;
+  manual?: boolean;
+}
+
+export interface ToolState {
+  paths: string[];
+  items: string[];
+  installations?: Record<string, Installation>;
+}
+
 export interface StateFile {
-  [tool: string]: { paths: string[]; items: string[] };
+  [tool: string]: ToolState;
 }
 
 export interface SelectedItem {
