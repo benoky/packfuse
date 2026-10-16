@@ -10,4 +10,4 @@ Packfuse does not copy vendor skill repositories into this tree. Procedures were
 | react-best-practices, web-design-guidelines | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | See that repository | Wrapper / official install |
 | figma-design-to-code | Figma official skill | See Figma | Wrapper |
 
-js-tiktoken, commander, and yaml are npm dependencies with their own licenses.
+commander and yaml are npm dependencies with their own licenses.

@@ -287,7 +287,7 @@ async function applyInstall(opts: CommonOpts, updating: boolean): Promise<void> 
     }
     refresh(entry);
     if (entry.items.length) state[tool] = entry;
-    console.log(`${tool}: estimated selected always-on tokens=${estimateTokens(tokenText)} (cl100k_base; descriptions + unconditional rules; excludes host prompts)`);
+    console.log(`${tool}: estimated selected always-on tokens≈${estimateTokens(tokenText)} (character approximation, not a model tokenizer; descriptions + unconditional rules; excludes host prompts)`);
   }
   if (changed) persist(tx, state, scope, opts, lock);
   if (!opts.dryRun) tx.commit();

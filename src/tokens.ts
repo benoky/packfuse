@@ -1,7 +1,4 @@
-import { encodingForModel } from "js-tiktoken";
-
-const enc = encodingForModel("gpt-4");
-
+/** Rough size estimate: about four UTF-16 code units per token. Not a model tokenizer. */
 export function estimateTokens(text: string): number {
-  return enc.encode(text).length;
+  return Math.ceil(text.length / 4);
 }

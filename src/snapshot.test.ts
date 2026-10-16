@@ -16,6 +16,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { install, uninstall, update, doctor, resolveScope, relayArgv } from "./engine.js";
+import { estimateTokens } from "./tokens.js";
 import { toolPaths } from "./paths.js";
 import { validateCatalog } from "./validate.js";
 import { resolveRequires, allItems } from "./manifest.js";
@@ -76,6 +77,10 @@ test("packfuse regression suite", async (t) => {
                         const before = tree(temp);
                         const dry = await capture(() => install({ ...opts, dryRun: true }));
                         assert.match(dry, /SKILL.md/);
+                        assert.match(dry, /character approximation, not a model tokenizer/);
+                        assert.equal(estimateTokens(""), 0);
+                        assert.equal(estimateTokens("abcd"), 1);
+                        assert.equal(estimateTokens("abcde"), 2);
                         assert.deepEqual(tree(temp), before);
                         await capture(() => install(opts));
                         const p = toolPaths(tool, scope, root);
