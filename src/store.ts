@@ -7,7 +7,8 @@ export function readLock(scope: Scope, cwd?: string): LockFile {
   if (!existsSync(p)) return { items: [] };
   const value = JSON.parse(readFileSync(p, "utf8"));
   if (!value || !Array.isArray(value.items) || value.items.some((i: any) =>
-    !i || typeof i.pack !== "string" || typeof i.id !== "string" || typeof i.version !== "string")) {
+    !i || typeof i.pack !== "string" || typeof i.id !== "string" || typeof i.version !== "string") ||
+    (value.relays !== undefined && (!Array.isArray(value.relays) || value.relays.some((id: unknown) => typeof id !== "string")))) {
     throw new Error(`Invalid lock: ${p}`);
   }
   return value;

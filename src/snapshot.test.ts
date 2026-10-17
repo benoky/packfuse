@@ -411,6 +411,68 @@ test("packfuse regression suite", async (t) => {
             assert.equal(read(target), "formatted");
             assert.equal(read(other), "untouched");
         });
+        await t.test("update drops retired docs ids and keeps the rest", async () => {
+            const root = cwd("retired-docs");
+            const base = { project: true, tool: "cursor" as const, cwd: root };
+            await capture(() => install(base));
+            const skill = path.join(root, ".cursor", "skills", "docs-pptx", "SKILL.md");
+            const marker = path.join(root, ".cursor", "skills", "docs-pptx", ".packfuse");
+            const note = path.join(root, ".cursor", "skills", "docs-pptx", "my-note.md");
+            put(skill, "old");
+            put(marker, "docs:docs-pptx");
+            put(note, "mine");
+            const stateFile = path.join(root, ".packfuse", "state.json");
+            const state = json(stateFile);
+            state.cursor.items.push("docs:docs-pptx");
+            state.cursor.paths.push(skill, marker);
+            state.cursor.installations["docs:docs-pptx"] = {
+                version: "1.0.0",
+                files: [skill, marker],
+            };
+            put(stateFile, JSON.stringify(state));
+            const lockFile = path.join(root, ".packfuse", "lock.json");
+            const lock = json(lockFile);
+            lock.items.push({ pack: "docs", id: "docs-pptx", version: "1.0.0", priority: "p1" });
+            put(lockFile, JSON.stringify(lock));
+            const diagnosed = await capture(() => doctor(base));
+            assert.match(diagnosed, /docs:docs-pptx was removed from the catalog/);
+            const calls: string[][] = [];
+            const updated = await capture(() =>
+                update({
+                    ...base,
+                    relayRunner: (args) => {
+                        calls.push(args);
+                    },
+                }),
+            );
+            assert.match(updated, /skip docs:docs-pptx/);
+            assert.match(updated, /updating the official pdf/);
+            assert.match(updated, /anthropics\/skills/);
+            assert.equal(calls.length, 1);
+            assert.ok(calls[0].includes("--skill"));
+            assert.ok(calls[0].includes("pptx"));
+            assert.equal(existsSync(skill), false);
+            assert.equal(read(note), "mine");
+            assert.ok(
+                existsSync(path.join(root, ".cursor", "skills", "implement-change", "SKILL.md")),
+            );
+            assert.equal(
+                json(lockFile).items.some((item: { id: string }) => item.id === "docs-pptx"),
+                false,
+            );
+            assert.deepEqual(json(lockFile).relays, ["docs"]);
+            const againCalls: string[][] = [];
+            const again = await capture(() =>
+                update({
+                    ...base,
+                    relayRunner: (args) => {
+                        againCalls.push(args);
+                    },
+                }),
+            );
+            assert.match(again, /files=0/);
+            assert.equal(againCalls.length, 1);
+        });
         await t.test(
             "docs relay prints the official installer and runs only for that pack",
             async () => {
@@ -458,6 +520,33 @@ test("packfuse regression suite", async (t) => {
                 );
                 assert.ok(calls[0].args.includes("-g"));
                 assert.ok(calls[0].args.includes("claude-code"));
+                assert.deepEqual(json(path.join(home, ".packfuse", "lock.json")).relays, ["docs"]);
+                await capture(() =>
+                    update({
+                        home: true,
+                        tool: "claude",
+                        cwd: root,
+                        relayRunner: (args, dir) => {
+                            calls.push({ args, cwd: dir });
+                        },
+                    }),
+                );
+                assert.equal(calls.length, 2);
+                const removedHome = await capture(() =>
+                    uninstall({ home: true, tool: "claude", cwd: root, pack: "docs" }),
+                );
+                assert.match(removedHome, /does not remove official skills/);
+                assert.equal(json(path.join(home, ".packfuse", "lock.json")).relays, undefined);
+                await capture(() =>
+                    update({
+                        home: true,
+                        tool: "claude",
+                        cwd: root,
+                        relayRunner: () => {
+                            throw new Error("relay after uninstall");
+                        },
+                    }),
+                );
                 const plain = await capture(() =>
                     install({
                         project: true,

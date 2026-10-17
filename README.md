@@ -8,15 +8,27 @@ Skills and rules for working with Cursor, Claude Code, and Codex. Install the wo
 
 ## English
 
-- [What is Packfuse?](#what-is-packfuse)
-- [Install with npm](#install-with-npm)
-- [Install from a plugin marketplace](#install-from-a-plugin-marketplace)
-- [Use your first skill](#use-your-first-skill)
-- [Add the packs you need](#add-the-packs-you-need)
-- [Priorities](#priorities)
-- [Update or remove](#update-or-remove)
-- [If something is missing](#if-something-is-missing)
-- [Credits](#credits)
+- [Packfuse](#packfuse)
+  - [English](#english)
+    - [What is Packfuse?](#what-is-packfuse)
+    - [Install with npm](#install-with-npm)
+    - [Examples](#examples)
+    - [Install from a plugin marketplace](#install-from-a-plugin-marketplace)
+    - [Add the packs you need](#add-the-packs-you-need)
+    - [Priorities](#priorities)
+    - [Update or remove](#update-or-remove)
+    - [If something is missing](#if-something-is-missing)
+    - [Credits](#credits)
+  - [한국어](#한국어)
+    - [Packfuse는 무엇인가요?](#packfuse는-무엇인가요)
+    - [npm으로 설치하기](#npm으로-설치하기)
+    - [사용 예시](#사용-예시)
+    - [플러그인 마켓에서 설치하기](#플러그인-마켓에서-설치하기)
+    - [필요한 팩과 스킬 추가하기](#필요한-팩과-스킬-추가하기)
+    - [우선순위](#우선순위)
+    - [업데이트와 삭제](#업데이트와-삭제)
+    - [스킬이 보이지 않거나 동작하지 않을 때](#스킬이-보이지-않거나-동작하지-않을-때)
+    - [출처](#출처)
 
 ### What is Packfuse?
 
@@ -65,6 +77,8 @@ npx packfuse@latest install --home --tool claude
 
 Choose a project installation for instructions specific to one repository; choose a home installation for your own reusable setup. Avoid installing the same skills in both locations unless you intend to manage two copies.
 
+Cursor can also be installed from its plugin marketplace. Claude Code and Codex use the npm commands. See [Install from a plugin marketplace](#install-from-a-plugin-marketplace).
+
 You can target a directory without changing your terminal's location:
 
 ```bash
@@ -72,6 +86,66 @@ npx packfuse@latest install --project --tool cursor --cwd "C:\Project\my-app"
 ```
 
 If you prefer a global CLI, run `npm install -g packfuse`. You can then use `packfuse` instead of `npx packfuse@latest` in these examples.
+
+### Examples
+
+Naming a skill asks for that workflow. Whether the agent selects it without the name depends on the tool and the request. These examples use skills and commands that the current catalog supports.
+
+**Fix a bug**
+
+`systematic-debugging` is in the default `general` install. It tells the agent to record the failure, test one cause at a time, then add a focused check and rerun it. `reproduce-minimal` is not in that default set. Add it when you want a smaller reproduction:
+
+```bash
+npx packfuse@latest install --project --tool cursor --pack general --item reproduce-minimal
+```
+
+```text
+The login test fails after the session expires. Use systematic-debugging:
+capture the failing command, find the cause, and verify the fix
+with the relevant tests.
+```
+
+**Review a change**
+
+`requesting-code-review` is invoked explicitly. It reviews the diff for defects and missing checks, and it does not rewrite the change. `blast-radius`, also explicit and in the default set, traces what else a change can affect.
+
+In Cursor or Claude Code:
+
+```text
+/requesting-code-review Review the current diff for bugs and missing tests.
+```
+
+In Codex CLI:
+
+```text
+$requesting-code-review Review the current diff for bugs and missing tests.
+```
+
+A Cursor marketplace installation uses the command shown by the host.
+
+**Install only what you need**
+
+There is no command that installs every pack. The first install writes `general` P0. Add one pack, or one skill:
+
+```bash
+npx packfuse@latest install --project --tool cursor --pack security
+
+npx packfuse@latest install --project --tool cursor --pack git --item commit-by-theme
+```
+
+The selection table is in [Add the packs you need](#add-the-packs-you-need). Update and removal commands are in [Update or remove](#update-or-remove).
+
+| Task                                    | Skill                    | Availability with npm |
+| --------------------------------------- | ------------------------ | --------------------- |
+| Clarify a feature before coding         | `brainstorming`          | Default `general`     |
+| Find the cause of a failure             | `systematic-debugging`   | Default `general`     |
+| Fix a failing CI job                    | `fix-ci`                 | Default `general`     |
+| Review a change                         | `requesting-code-review` | Default `general`     |
+| Examine the impact of a proposed change | `blast-radius`           | Default `general`     |
+| Prepare context for the next session    | `handoff`                | Add separately        |
+| Group changes into commits              | `commit-by-theme`        | Add from `git`        |
+
+For Git workflows, state the action you want the agent to take. Installing a Git skill does not itself authorize a commit, push, or release.
 
 ### Install from a plugin marketplace
 
@@ -87,46 +161,7 @@ This repository is the Cursor plugin. `.cursor-plugin/plugin.json` points at the
 
 See the official [Cursor plugin guide](https://cursor.com/docs/plugins) for installation options.
 
-For marketplace installations, use the host's plugin manager to enable, update, or remove the plugin. The npm commands below manage CLI installations.
-
-### Use your first skill
-
-After installing `general`, ask your agent to work on a real task. Include the relevant files, error output, or expected behavior:
-
-```text
-The login test fails after the session expires. Reproduce the failure,
-find its cause, and verify the fix with the relevant tests.
-```
-
-The debugging workflow is available for a request like this. Automatic selection depends on the tool and the request; you can name the skill when you want to be explicit.
-
-To request a review, type `/` in Cursor or Claude Code and select `requesting-code-review`. For an npm installation, you can enter:
-
-```text
-/requesting-code-review Review the current diff for bugs and missing tests.
-```
-
-In Codex CLI, use:
-
-```text
-$requesting-code-review Review the current diff for bugs and missing tests.
-```
-
-For a Cursor marketplace installation, select the command shown by the host. Claude Code and Codex marketplace installation is not supported, so use the npm commands above.
-
-A few useful starting points:
-
-| Task                                    | Skill                    | Availability with npm |
-| --------------------------------------- | ------------------------ | --------------------- |
-| Clarify a feature before coding         | `brainstorming`          | Default `general`     |
-| Find the cause of a failure             | `systematic-debugging`   | Default `general`     |
-| Fix a failing CI job                    | `fix-ci`                 | Default `general`     |
-| Review a change                         | `requesting-code-review` | Default `general`     |
-| Examine the impact of a proposed change | `blast-radius`           | Default `general`     |
-| Prepare context for the next session    | `handoff`                | Add separately        |
-| Group changes into commits              | `commit-by-theme`        | Add from `git`        |
-
-For Git workflows, state the action you want the agent to take. Installing a Git skill does not itself authorize a commit, push, or release.
+For marketplace installations, use the host's plugin manager to enable, update, or remove the plugin. The npm commands in the other sections manage CLI installations.
 
 ### Add the packs you need
 
@@ -256,7 +291,7 @@ npx packfuse@latest install --project --tool cursor --pack local-runtime --prior
 npx packfuse@latest install --project --tool cursor --pack docs
 ```
 
-`--dry-run` prints that installer command and does not run it. `uninstall` does not remove those official skills.
+`--dry-run` prints that installer command and does not run it. `update` runs the installer again for a scope where `docs` is installed, so a newer official skill can replace the previous one. `uninstall` leaves those official skills in place and stops later updates from installing them again.
 
 The `react` and `figma` packs keep a short local skill and do not bundle the vendor implementations. Packfuse prints a setup hint when one is recorded; it does not run those external installers. Configure Figma access and other service connections in your coding tool.
 
@@ -292,15 +327,16 @@ For a marketplace installation, return to the host's plugin manager. `packfuse u
 
 ### If something is missing
 
-| Problem                                            | What to check                                                                                                                                                           |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A skill does not appear                            | Start a new session in the configured project. For npm, check that `--tool` and `--home`/`--project` match your intended setup. For a plugin, check that it is enabled. |
-| `handoff` or another extra skill is missing        | It may be outside the default set. Install it with `--pack` and `--item`; for plugins, check the bundle's contents.                                                     |
-| Installing `tools` or `local-runtime` adds nothing | These packs have no P0 items. Select an item or add `--priority p1`.                                                                                                    |
-| Document skills are missing                        | Install the `docs` pack. It runs the skills CLI for `pdf`, `docx`, `pptx`, and `xlsx`.                                                                                  |
-| Cursor home rules are not active                   | A home installation prints rules for you to paste into Cursor's **User Rules**. Complete that step, or use a project installation.                                      |
-| A vendor skill or service is unavailable           | Follow the setup hint and connect the required tool or service separately.                                                                                              |
-| You see a file conflict                            | Inspect the existing definition before replacing it. Keep your own custom skills separate from Packfuse-managed copies.                                                 |
+| Problem                                                                | What to check                                                                                                                                                                                                                                |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A skill does not appear                                                | Start a new session in the configured project. For npm, check that `--tool` and `--home`/`--project` match your intended setup. For a plugin, check that it is enabled.                                                                      |
+| `docs-pdf`, `docs-docx`, `docs-pptx`, or `docs-xlsx` is still recorded | A 1.0.0 lock can name those ids. `update` removes them from the saved selection, deletes the files it recorded for them, and runs the official installer for `pdf`, `docx`, `pptx`, and `xlsx`. Extra files you added in those folders stay. |
+| `handoff` or another extra skill is missing                            | It may be outside the default set. Install it with `--pack` and `--item`; for plugins, check the bundle's contents.                                                                                                                          |
+| Installing `tools` or `local-runtime` adds nothing                     | These packs have no P0 items. Select an item or add `--priority p1`.                                                                                                                                                                         |
+| Document skills are missing                                            | Install the `docs` pack. It runs the skills CLI for `pdf`, `docx`, `pptx`, and `xlsx`.                                                                                                                                                       |
+| Cursor home rules are not active                                       | A home installation prints rules for you to paste into Cursor's **User Rules**. Complete that step, or use a project installation.                                                                                                           |
+| A vendor skill or service is unavailable                               | Follow the setup hint and connect the required tool or service separately.                                                                                                                                                                   |
+| You see a file conflict                                                | Inspect the existing definition before replacing it. Keep your own custom skills separate from Packfuse-managed copies.                                                                                                                      |
 
 For an npm installation, run a diagnostic in the affected location:
 
@@ -316,15 +352,27 @@ Some workflows draw on [Superpowers](https://github.com/obra/superpowers) and An
 
 ## 한국어
 
-- [Packfuse는 무엇인가요?](#packfuse는-무엇인가요)
-- [npm으로 설치하기](#npm으로-설치하기)
-- [플러그인 마켓에서 설치하기](#플러그인-마켓에서-설치하기)
-- [설치 후 처음 사용하기](#설치-후-처음-사용하기)
-- [필요한 팩과 스킬 추가하기](#필요한-팩과-스킬-추가하기)
-- [우선순위](#우선순위)
-- [업데이트와 삭제](#업데이트와-삭제)
-- [스킬이 보이지 않거나 동작하지 않을 때](#스킬이-보이지-않거나-동작하지-않을-때)
-- [출처](#출처)
+- [Packfuse](#packfuse)
+  - [English](#english)
+    - [What is Packfuse?](#what-is-packfuse)
+    - [Install with npm](#install-with-npm)
+    - [Examples](#examples)
+    - [Install from a plugin marketplace](#install-from-a-plugin-marketplace)
+    - [Add the packs you need](#add-the-packs-you-need)
+    - [Priorities](#priorities)
+    - [Update or remove](#update-or-remove)
+    - [If something is missing](#if-something-is-missing)
+    - [Credits](#credits)
+  - [한국어](#한국어)
+    - [Packfuse는 무엇인가요?](#packfuse는-무엇인가요)
+    - [npm으로 설치하기](#npm으로-설치하기)
+    - [사용 예시](#사용-예시)
+    - [플러그인 마켓에서 설치하기](#플러그인-마켓에서-설치하기)
+    - [필요한 팩과 스킬 추가하기](#필요한-팩과-스킬-추가하기)
+    - [우선순위](#우선순위)
+    - [업데이트와 삭제](#업데이트와-삭제)
+    - [스킬이 보이지 않거나 동작하지 않을 때](#스킬이-보이지-않거나-동작하지-않을-때)
+    - [출처](#출처)
 
 ### Packfuse는 무엇인가요?
 
@@ -373,6 +421,8 @@ npx packfuse@latest install --home --tool claude
 
 한 저장소에 적용할 설정은 프로젝트에, 여러 저장소에서 사용할 개인 설정은 홈에 설치하면 됩니다. 같은 스킬을 두 곳에 설치하면 관리할 사본도 두 개가 됩니다.
 
+Cursor는 플러그인 마켓으로도 설치할 수 있습니다. Claude Code와 Codex는 npm 명령을 사용합니다. [플러그인 마켓에서 설치하기](#플러그인-마켓에서-설치하기)를 참고하세요.
+
 현재 터미널 위치와 다른 프로젝트에 설치하려면 경로를 지정합니다.
 
 ```bash
@@ -380,6 +430,65 @@ npx packfuse@latest install --project --tool cursor --cwd "C:\Project\my-app"
 ```
 
 전역 CLI를 쓰고 싶다면 `npm install -g packfuse`로 설치하세요. 이후 예시의 `npx packfuse@latest`를 `packfuse`로 바꿔 실행할 수 있습니다.
+
+### 사용 예시
+
+스킬 이름을 적으면 그 절차를 요청한 것입니다. 이름을 적지 않았을 때 에이전트가 고르는지는 도구와 요청에 따라 다릅니다. 아래 예시는 현재 카탈로그에 있는 스킬과 명령만 사용합니다.
+
+**버그 수정**
+
+`systematic-debugging`은 기본 `general` 설치에 포함됩니다. 실패를 기록하고, 원인을 하나씩 확인한 다음, 좁은 검사를 추가하고 다시 실행하도록 안내합니다. `reproduce-minimal`은 기본 구성에 없습니다. 더 작은 재현이 필요할 때 추가합니다.
+
+```bash
+npx packfuse@latest install --project --tool cursor --pack general --item reproduce-minimal
+```
+
+```text
+세션이 만료된 뒤 로그인 테스트가 실패해. systematic-debugging으로
+실패 명령을 기록하고 원인을 찾은 다음, 관련 테스트로 수정 결과를 확인해줘.
+```
+
+**코드 리뷰**
+
+`requesting-code-review`는 직접 호출합니다. diff의 결함과 빠진 검사를 리뷰하며, 변경을 다시 작성하지는 않습니다. `blast-radius`도 직접 호출하는 기본 구성 스킬이며, 변경이 다른 곳에 미치는 영향을 추적합니다.
+
+Cursor 또는 Claude Code:
+
+```text
+/requesting-code-review 현재 diff에서 버그와 빠진 테스트를 검토해줘.
+```
+
+Codex CLI:
+
+```text
+$requesting-code-review 현재 diff에서 버그와 빠진 테스트를 검토해줘.
+```
+
+Cursor 마켓 설치는 도구에 표시되는 명령을 선택합니다.
+
+**필요한 항목만 설치**
+
+모든 팩을 한 번에 설치하는 명령은 없습니다. 처음 설치하면 `general` P0이 들어갑니다. 팩 하나 또는 스킬 하나를 추가합니다.
+
+```bash
+npx packfuse@latest install --project --tool cursor --pack security
+
+npx packfuse@latest install --project --tool cursor --pack git --item commit-by-theme
+```
+
+선택 기준은 [필요한 팩과 스킬 추가하기](#필요한-팩과-스킬-추가하기)에 있습니다. 업데이트와 삭제는 [업데이트와 삭제](#업데이트와-삭제)에 있습니다.
+
+| 하고 싶은 작업             | 스킬                     | npm 설치 기준       |
+| -------------------------- | ------------------------ | ------------------- |
+| 구현 전에 요구사항 정리    | `brainstorming`          | `general` 기본 구성 |
+| 오류 원인 추적             | `systematic-debugging`   | `general` 기본 구성 |
+| 실패하는 CI 수정           | `fix-ci`                 | `general` 기본 구성 |
+| 변경 코드 리뷰             | `requesting-code-review` | `general` 기본 구성 |
+| 변경 영향 범위 확인        | `blast-radius`           | `general` 기본 구성 |
+| 다음 세션에 넘길 맥락 정리 | `handoff`                | 별도 추가           |
+| 변경 사항을 주제별로 커밋  | `commit-by-theme`        | `git`에서 추가      |
+
+Git 스킬을 사용할 때는 수행할 동작을 명시하세요. 스킬을 설치하는 것만으로 커밋·푸시·릴리스를 허용한 것으로 간주하지 않습니다.
 
 ### 플러그인 마켓에서 설치하기
 
@@ -395,44 +504,7 @@ Packfuse 플러그인 마켓은 Cursor만 지원합니다. Claude Code와 Codex�
 
 설치 옵션은 공식 [Cursor 플러그인 안내](https://cursor.com/docs/plugins)를 참고하세요.
 
-마켓으로 설치한 플러그인은 해당 도구의 플러그인 관리자에서 활성화·업데이트·삭제합니다. 아래 CLI 명령은 npm으로 설치한 구성을 관리할 때 사용합니다.
-
-### 설치 후 처음 사용하기
-
-`general`을 설치했다면 평소처럼 작업을 요청하면 됩니다. 대상 파일, 오류 메시지, 기대하는 동작을 함께 주면 스킬이 다룰 범위가 분명해집니다.
-
-```text
-세션이 만료된 뒤 로그인 테스트가 실패해.
-실패를 재현하고 원인을 찾은 다음, 관련 테스트로 수정 결과를 확인해줘.
-```
-
-이런 요청에는 디버깅 스킬을 활용할 수 있습니다. 자동 선택 여부는 도구와 요청에 따라 달라집니다. 특정 스킬을 쓰고 싶다면 이름을 지정하세요.
-
-코드 리뷰를 요청하려면 Cursor나 Claude Code에서 `/`를 입력하고 `requesting-code-review`를 선택합니다. npm 설치 기준으로 다음과 같이 입력할 수 있습니다.
-
-```text
-/requesting-code-review 현재 diff에서 버그와 빠진 테스트를 검토해줘.
-```
-
-Codex CLI에서는 다음과 같이 호출합니다.
-
-```text
-$requesting-code-review 현재 diff에서 버그와 빠진 테스트를 검토해줘.
-```
-
-Cursor 마켓 설치는 도구에 표시되는 명령을 선택하세요. Claude Code와 Codex 마켓 설치는 지원하지 않으므로 위의 npm 명령을 사용하세요.
-
-| 하고 싶은 작업             | 스킬                     | npm 설치 기준       |
-| -------------------------- | ------------------------ | ------------------- |
-| 구현 전에 요구사항 정리    | `brainstorming`          | `general` 기본 구성 |
-| 오류 원인 추적             | `systematic-debugging`   | `general` 기본 구성 |
-| 실패하는 CI 수정           | `fix-ci`                 | `general` 기본 구성 |
-| 변경 코드 리뷰             | `requesting-code-review` | `general` 기본 구성 |
-| 변경 영향 범위 확인        | `blast-radius`           | `general` 기본 구성 |
-| 다음 세션에 넘길 맥락 정리 | `handoff`                | 별도 추가           |
-| 변경 사항을 주제별로 커밋  | `commit-by-theme`        | `git`에서 추가      |
-
-Git 스킬을 사용할 때는 수행할 동작을 명시하세요. 스킬을 설치하는 것만으로 커밋·푸시·릴리스를 허용한 것으로 간주하지 않습니다.
+마켓으로 설치한 플러그인은 해당 도구의 플러그인 관리자에서 활성화·업데이트·삭제합니다. 다른 절의 CLI 명령은 npm으로 설치한 구성을 관리할 때 사용합니다. 사용 예시는 [사용 예시](#사용-예시)에 있습니다.
 
 ### 필요한 팩과 스킬 추가하기
 
@@ -562,7 +634,7 @@ npx packfuse@latest install --project --tool cursor --pack local-runtime --prior
 npx packfuse@latest install --project --tool cursor --pack docs
 ```
 
-`--dry-run`은 그 설치 명령만 출력하고 실행하지 않습니다. `uninstall`은 그 공식 스킬을 지우지 않습니다.
+`--dry-run`은 그 설치 명령만 출력하고 실행하지 않습니다. `docs`를 설치한 스코프에서 `update`를 실행하면 같은 공식 설치기가 다시 실행되어, 바뀐 공식 스킬을 받을 수 있습니다. `uninstall`은 그 공식 스킬 파일을 지우지 않고, 이후 `update`가 다시 설치하지 않게 기록만 지웁니다.
 
 `react`와 `figma`는 짧은 로컬 스킬만 두고 벤더 구현을 포함하지 않습니다. 설치 힌트가 있으면 출력하며, 그 외부 설치기는 실행하지 않습니다. Figma 등 서비스 연결은 코딩 도구에서 별도로 설정하세요.
 
@@ -598,15 +670,16 @@ npx packfuse@latest uninstall --project --all
 
 ### 스킬이 보이지 않거나 동작하지 않을 때
 
-| 상황                                           | 확인할 내용                                                                                                                  |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| 설치한 스킬이 목록에 없음                      | 설치한 프로젝트에서 새 세션을 시작하세요. npm 설치는 도구·홈·프로젝트 선택을, 마켓 설치는 플러그인 활성화 상태를 확인합니다. |
-| `handoff` 등 추가 스킬이 없음                  | 기본 구성 밖의 항목일 수 있습니다. npm은 `--pack`과 `--item`으로 추가하고, 마켓은 플러그인의 포함 항목을 확인하세요.         |
-| `tools`, `local-runtime` 설치 결과가 비어 있음 | P0 항목이 없는 팩입니다. 항목을 선택하거나 `--priority p1`을 붙이세요.                                                       |
-| 문서 스킬이 없음                               | `docs` 팩을 설치하세요. `pdf`, `docx`, `pptx`, `xlsx`를 skills CLI로 설치합니다.                                             |
-| Cursor 홈 규칙이 적용되지 않음                 | 홈 설치 시 출력된 규칙을 Cursor의 **User Rules**에 붙여 넣어야 합니다. 해당 단계를 완료하거나 프로젝트 설치를 사용하세요.    |
-| 외부 공식 스킬이나 서비스가 없음               | 설정 힌트를 따라 필요한 도구·서비스를 별도로 연결하세요.                                                                     |
-| 기존 파일과 충돌함                             | 기존 정의를 확인한 뒤 처리하세요. 직접 만든 스킬은 Packfuse가 관리하는 사본과 별도로 두는 편이 좋습니다.                     |
+| 상황                                                                 | 확인할 내용                                                                                                                                                                                       |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 설치한 스킬이 목록에 없음                                            | 설치한 프로젝트에서 새 세션을 시작하세요. npm 설치는 도구·홈·프로젝트 선택을, 마켓 설치는 플러그인 활성화 상태를 확인합니다.                                                                      |
+| `docs-pdf`, `docs-docx`, `docs-pptx`, `docs-xlsx`가 기록에 남아 있음 | 1.0.0 잠금에 이 id가 있을 수 있습니다. `update`는 저장된 선택에서 빼고, 그때 기록한 파일만 삭제한 뒤 `pdf`, `docx`, `pptx`, `xlsx` 공식 설치기를 실행합니다. 그 폴더에 직접 넣은 파일은 남습니다. |
+| `handoff` 등 추가 스킬이 없음                                        | 기본 구성 밖의 항목일 수 있습니다. npm은 `--pack`과 `--item`으로 추가하고, 마켓은 플러그인의 포함 항목을 확인하세요.                                                                              |
+| `tools`, `local-runtime` 설치 결과가 비어 있음                       | P0 항목이 없는 팩입니다. 항목을 선택하거나 `--priority p1`을 붙이세요.                                                                                                                            |
+| 문서 스킬이 없음                                                     | `docs` 팩을 설치하세요. `pdf`, `docx`, `pptx`, `xlsx`를 skills CLI로 설치합니다.                                                                                                                  |
+| Cursor 홈 규칙이 적용되지 않음                                       | 홈 설치 시 출력된 규칙을 Cursor의 **User Rules**에 붙여 넣어야 합니다. 해당 단계를 완료하거나 프로젝트 설치를 사용하세요.                                                                         |
+| 외부 공식 스킬이나 서비스가 없음                                     | 설정 힌트를 따라 필요한 도구·서비스를 별도로 연결하세요.                                                                                                                                          |
+| 기존 파일과 충돌함                                                   | 기존 정의를 확인한 뒤 처리하세요. 직접 만든 스킬은 Packfuse가 관리하는 사본과 별도로 두는 편이 좋습니다.                                                                                          |
 
 npm 설치를 진단하려면 문제가 생긴 위치에서 실행하세요.
 

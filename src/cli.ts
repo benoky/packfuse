@@ -5,7 +5,7 @@ import { doctor, install, listCmd, uninstall, update, type CommonOpts } from "./
 const program = new Command();
 program
     .name("packfuse")
-    .description("Fuse skill packs onto Cursor, Claude Code, and Codex")
+    .description("Install reusable coding skills and rules for Cursor, Claude Code, and Codex.")
     .version("1.1.1");
 
 function scopeFlags(cmd: Command): Command {

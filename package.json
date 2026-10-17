@@ -1,7 +1,7 @@
 {
     "name": "packfuse",
     "version": "1.1.1",
-    "description": "Fuse skill packs onto Cursor, Claude Code, and Codex",
+    "description": "Install reusable coding skills and rules for Cursor, Claude Code, and Codex.",
     "type": "module",
     "bin": {
         "packfuse": "./dist/cli.js"
@@ -13,29 +13,34 @@
     ],
     "scripts": {
         "build": "tsc",
+        "prepack": "npm run build",
         "packfuse": "tsx src/cli.ts",
         "typecheck": "tsc --noEmit",
         "test": "node --import tsx --test src/snapshot.test.ts src/evals.test.ts src/codex-plugin.test.ts src/cursor-plugin.test.ts",
         "pack:codex": "tsx scripts/pack-codex-plugin.ts",
         "validate": "node --import tsx src/validate.ts",
-        "eval": "node evals/run.mjs"
+        "eval": "node evals/run.mjs",
+        "downloads": "node scripts/npm-downloads.mjs"
     },
     "engines": {
         "node": ">=20.6"
     },
     "keywords": [
         "cursor",
+        "claude-code",
         "claude",
         "codex",
+        "agent-skills",
         "skills",
-        "agent"
+        "developer-tools",
+        "coding-agent"
     ],
     "license": "MIT",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/benoky/packfuse.git"
     },
-    "homepage": "https://www.npmjs.com/package/packfuse",
+    "homepage": "https://github.com/benoky/packfuse#readme",
     "bugs": {
         "url": "https://github.com/benoky/packfuse/issues"
     },

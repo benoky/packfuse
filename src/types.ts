@@ -40,6 +40,8 @@ export interface LockItem {
 
 export interface LockFile {
   items: LockItem[];
+  /** Packs installed by an external installer. `update` runs that installer again. */
+  relays?: string[];
 }
 
 export interface Installation {
