@@ -5,7 +5,7 @@
         {
             "id": "requirements",
             "kind": "rule",
-            "priority": "p0",
+            "priority": "p1",
             "tools": ["cursor", "claude", "codex"],
             "version": "1.1.0",
             "source": "self"
@@ -45,7 +45,7 @@
         {
             "id": "skill-promotion",
             "kind": "rule",
-            "priority": "p0",
+            "priority": "p1",
             "tools": ["cursor", "claude", "codex"],
             "version": "1.1.0",
             "source": "self",

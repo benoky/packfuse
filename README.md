@@ -13,6 +13,7 @@ Skills and rules for working with Cursor, Claude Code, and Codex. Install the wo
 - [Install from a plugin marketplace](#install-from-a-plugin-marketplace)
 - [Use your first skill](#use-your-first-skill)
 - [Add the packs you need](#add-the-packs-you-need)
+- [Priorities](#priorities)
 - [Update or remove](#update-or-remove)
 - [If something is missing](#if-something-is-missing)
 - [Credits](#credits)
@@ -26,7 +27,7 @@ The collection is organized into **packs**. Start with `general` for everyday co
 The same packs and skills work in Cursor, Claude Code, and Codex. You choose the tool when you install. The instructions stay the same; each tool has its own way to invoke a skill. Agents and hooks, when you add them, are for Cursor and Claude Code.
 
 - **Skills** describe how to handle a particular task. Some can be selected by the agent when relevant; others are invoked explicitly.
-- **Rules** provide ongoing guidance about requirements, change scope, Git actions, and verification.
+- **Rules** provide ongoing guidance about secrets, change scope, Git actions, and verification.
 - **Agents and hooks** are optional additions. The default npm installation does not include them.
 
 Packfuse works inside your existing coding tool. It does not require a separate account or API key. Your tool's model access, permissions, and any external service connections still apply.
@@ -48,7 +49,7 @@ npx packfuse@latest install --project --tool claude
 npx packfuse@latest install --project --tool codex
 ```
 
-On a first installation, each command adds the `general` default set: **six rules and eleven skills**. It includes planning, implementation, debugging, CI fixes, merge-conflict resolution, code review, and verification. Open the configured project in your tool and start a new session to use the installed skills.
+On a first installation, each command adds the `general` P0 set: **four rules and eleven skills**. It includes planning, implementation, debugging, CI fixes, merge-conflict resolution, code review, and verification. Open the configured project in your tool and start a new session to use the installed skills.
 
 To see the planned installation before writing files, add `--dry-run`:
 
@@ -162,7 +163,84 @@ npx packfuse@latest install --project --tool codex --pack general --item handoff
 | `figma`         | Turn a supplied Figma design into code                               |
 | `docs`          | Official Anthropic PDF, Word, spreadsheet, and slide skills          |
 
-`--priority` does not apply to a lock restore or to `--item`. `general` P1 also includes agents and hooks for Cursor and Claude Code.
+### Priorities
+
+A priority is an install boundary, not a quality ranking. P0 is the default set for a pack. Skill descriptions and unconditional rules in that set can be included on later requests, so the default is smaller than the full catalog.
+
+| Flag                 | What is installed                       |
+| -------------------- | --------------------------------------- |
+| `--priority` omitted | That pack's P0                          |
+| `--priority p1`      | P0 and P1                               |
+| `--priority p2`      | P0, P1, and P2, which is the whole pack |
+
+`general` P0 is what a first installation writes. Higher tiers add the rows below; they do not replace P0.
+
+| Priority | Kind  | Item                             | Role                                                                                       |
+| -------- | ----- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| P0       | Rule  | `safety`                         | Keep secrets out. Skip destructive commands and force-push unless this conversation asked. |
+| P0       | Rule  | `verification`                   | Run checks for the change. A screenshot alone does not verify UI behavior.                 |
+| P0       | Rule  | `code-change`                    | Keep the diff small and complete. Do not hand-edit generated output.                       |
+| P0       | Rule  | `git`                            | Commit, push, or open a PR only when asked.                                                |
+| P0       | Skill | `brainstorming`                  | Settle an open design before coding.                                                       |
+| P0       | Skill | `writing-plans`                  | Turn an agreed design into ordered, verifiable tasks.                                      |
+| P0       | Skill | `implement-change`               | Implement a bounded change that is ready to build.                                         |
+| P0       | Skill | `test-driven-development`        | Drive a known behavior change with a failing test first.                                   |
+| P0       | Skill | `systematic-debugging`           | Find an unknown cause before editing.                                                      |
+| P0       | Skill | `fix-ci`                         | Fix a failing CI job without weakening the check.                                          |
+| P0       | Skill | `verification-before-completion` | Gather evidence before calling the change done.                                            |
+| P0       | Skill | `resolve-merge-conflicts`        | Keep both intended behaviors while resolving a conflict.                                   |
+| P0       | Skill | `requesting-code-review`         | Review a diff for defects. Invoked explicitly.                                             |
+| P0       | Skill | `propose-skill`                  | Draft a skill or rule when asked. Invoked explicitly.                                      |
+| P0       | Skill | `blast-radius`                   | Trace the impact of a diff. Invoked explicitly.                                            |
+| P1       | Rule  | `requirements`                   | Implement the stated requirements and do not invent scope.                                 |
+| P1       | Rule  | `skill-promotion`                | Suggest a skill once after the same procedure is requested repeatedly.                     |
+| P1       | Skill | `safe-refactor`                  | Reorganize code without changing behavior.                                                 |
+| P1       | Skill | `receiving-code-review`          | Apply review feedback that holds up.                                                       |
+| P1       | Skill | `docs-from-code`                 | Document behavior that is already implemented.                                             |
+| P1       | Skill | `onboard-repo`                   | Write repository-specific agent instructions.                                              |
+| P1       | Skill | `token-budget`                   | Estimate tokens for visible rules, skills, or history.                                     |
+| P1       | Skill | `handoff`                        | Leave a compact note for the next session.                                                 |
+| P1       | Skill | `update-deps`                    | Upgrade dependencies the user asked to upgrade.                                            |
+| P1       | Skill | `author-ci`                      | Add or change a CI workflow.                                                               |
+| P1       | Skill | `flaky-test`                     | Diagnose a test that fails only sometimes.                                                 |
+| P1       | Skill | `reproduce-minimal`              | Reduce a bug to a small reproduction.                                                      |
+| P1       | Skill | `explain-codebase`               | Explain a module or the repository structure.                                              |
+| P1       | Agent | `code-explorer`                  | Read-only search for entry points and contracts.                                           |
+| P1       | Agent | `reviewer`                       | Review a bounded diff for defects.                                                         |
+| P1       | Agent | `verifier`                       | Run the checks that exercise a defined change.                                             |
+| P1       | Hook  | `afterFileEdit`                  | Run a configured local formatter after an edit. Cursor and Claude Code.                    |
+| P1       | Hook  | `beforeShellExecution`           | Block a few destructive shell commands. Cursor and Claude Code.                            |
+| P2       | Skill | `subagent-driven-development`    | Split an approved plan across delegated tasks.                                             |
+| P2       | Skill | `adr`                            | Write an architecture decision record.                                                     |
+| P2       | Skill | `incident-lite`                  | Write a short incident note.                                                               |
+| P2       | Hook  | `sessionEnd`                     | Remind you to draft a skill if a procedure was repeated. Cursor only.                      |
+
+Other packs use the same three boundaries:
+
+| Priority | Pack            | Item                             | Role                                                                                    |
+| -------- | --------------- | -------------------------------- | --------------------------------------------------------------------------------------- |
+| P0       | `api`           | `api-design`                     | Design or change an HTTP or RPC contract.                                               |
+| P0       | `api`           | `db-migration`                   | Change schema or persistent data.                                                       |
+| P0       | `git`           | `commit-by-theme`                | Make commits only when asked.                                                           |
+| P0       | `git`           | `finishing-a-development-branch` | Finish a branch only when asked.                                                        |
+| P0       | `web-ui`        | `frontend-design`                | Build a UI whose requirements are already set.                                          |
+| P0       | `web-ui`        | `webapp-testing`                 | Check a local app in the browser when asked.                                            |
+| P0       | `react`         | `react-best-practices`           | Review React or Next performance. Delegates to the official skill when it is installed. |
+| P0       | `figma`         | `figma-design-to-code`           | Implement a supplied Figma design.                                                      |
+| P0       | `security`      | `security-pass`                  | Review a change for defensive issues.                                                   |
+| P1       | `api`           | `openapi-schema`                 | Maintain an OpenAPI or JSON Schema contract.                                            |
+| P1       | `api`           | `query-and-index`                | Investigate a measured query or transaction problem.                                    |
+| P1       | `git`           | `git-bisect`                     | Find the revision that introduced a regression.                                         |
+| P1       | `git`           | `using-git-worktrees`            | Work in an isolated Git worktree when asked.                                            |
+| P1       | `git`           | `cut-release`                    | Prepare a versioned release when asked.                                                 |
+| P1       | `web-ui`        | `web-design-guidelines`          | Audit accessibility or UX when asked.                                                   |
+| P1       | `local-runtime` | `dev-containers`                 | Set up a development container.                                                         |
+| P1       | `local-runtime` | `docker-compose-dev`             | Set up local multi-service development.                                                 |
+| P1       | `tools`         | `mcp-builder`                    | Implement or change an MCP server.                                                      |
+
+`docs` has no priority items. Installing it runs the official installer for `pdf`, `docx`, `pptx`, and `xlsx`.
+
+`--priority` does not apply when restoring a saved lock or when you pass `--item`. There is no command that installs every pack at once.
 
 `local-runtime` and `tools` have no P0 items. Select an item or include P1:
 
@@ -241,6 +319,7 @@ Some workflows draw on [Superpowers](https://github.com/obra/superpowers) and An
 - [플러그인 마켓에서 설치하기](#플러그인-마켓에서-설치하기)
 - [설치 후 처음 사용하기](#설치-후-처음-사용하기)
 - [필요한 팩과 스킬 추가하기](#필요한-팩과-스킬-추가하기)
+- [우선순위](#우선순위)
 - [업데이트와 삭제](#업데이트와-삭제)
 - [스킬이 보이지 않거나 동작하지 않을 때](#스킬이-보이지-않거나-동작하지-않을-때)
 - [출처](#출처)
@@ -254,7 +333,7 @@ Packfuse는 Cursor, Claude Code, Codex에서 쓰는 개발 작업용 스킬과 �
 같은 팩과 스킬을 Cursor, Claude Code, Codex 중 어디에나 설치할 수 있습니다. 설치할 때 도구를 고르면 됩니다. 스킬 내용은 같고, 호출 방법만 도구마다 다릅니다. 에이전트와 훅을 추가하면 Cursor와 Claude Code에서 씁니다.
 
 - **스킬**은 특정 작업을 수행하는 절차입니다. 요청에 따라 에이전트가 선택하는 스킬과 사용자가 직접 호출하는 스킬이 있습니다.
-- **규칙**은 요구사항, 변경 범위, Git 작업, 검증 등에 계속 적용되는 지침입니다.
+- **규칙**은 비밀 정보, 변경 범위, Git 작업, 검증에 계속 적용되는 지침입니다.
 - **에이전트와 훅**은 선택 항목입니다. npm 기본 설치에는 포함되지 않습니다.
 
 설치한 스킬은 사용 중인 코딩 도구 안에서 실행됩니다. Packfuse용 계정이나 API 키는 필요하지 않으며, 모델 이용 권한과 외부 서비스 연결은 해당 도구의 설정을 따릅니다.
@@ -276,7 +355,7 @@ npx packfuse@latest install --project --tool claude
 npx packfuse@latest install --project --tool codex
 ```
 
-처음 설치하면 `general`의 기본 구성인 **규칙 6개와 스킬 11개**가 들어갑니다. 계획, 구현, 디버깅, CI 오류 수정, 병합 충돌 해결, 코드 리뷰, 검증을 위한 항목입니다. 설치한 프로젝트를 코딩 도구에서 열고 새 세션을 시작하세요.
+처음 설치하면 `general` P0인 **규칙 4개와 스킬 11개**가 들어갑니다. 계획, 구현, 디버깅, CI 오류 수정, 병합 충돌 해결, 코드 리뷰, 검증을 위한 항목입니다. 설치한 프로젝트를 코딩 도구에서 열고 새 세션을 시작하세요.
 
 파일을 쓰기 전에 설치 내용을 확인하려면 `--dry-run`을 붙입니다.
 
@@ -388,7 +467,84 @@ npx packfuse@latest install --project --tool codex --pack general --item handoff
 | `figma`         | 제공된 Figma 시안을 코드로 구현                      |
 | `docs`          | 공식 Anthropic PDF·Word·스프레드시트·슬라이드 스킬   |
 
-`--priority`는 잠금 복원과 `--item`에는 적용되지 않습니다. `general` P1에는 Cursor·Claude Code용 에이전트와 훅도 들어갑니다.
+### 우선순위
+
+우선순위는 품질 순위가 아니라 설치 범위입니다. P0이 그 팩의 기본 구성입니다. 여기에 들어간 스킬 설명과 항상 적용되는 규칙은 이후 요청에도 포함될 수 있어서, 기본 구성은 전체 목록보다 작게 둡니다.
+
+| 옵션              | 들어가는 것              |
+| ----------------- | ------------------------ |
+| `--priority` 생략 | 그 팩의 P0               |
+| `--priority p1`   | P0과 P1                  |
+| `--priority p2`   | P0, P1, P2. 그 팩의 전부 |
+
+`general` P0이 처음 설치에 기록됩니다. 위 등급은 P0을 바꾸지 않고 아래 행을 더합니다.
+
+| 우선순위 | 종류     | 항목                             | 역할                                                                                       |
+| -------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
+| P0       | 규칙     | `safety`                         | 비밀을 남기지 않습니다. 이 대화에서 요청하지 않은 파괴적 명령과 강제 push는 하지 않습니다. |
+| P0       | 규칙     | `verification`                   | 변경된 동작을 검사합니다. 스크린샷만으로 UI 동작을 확인했다고 하지 않습니다.               |
+| P0       | 규칙     | `code-change`                    | diff를 작고 완전하게 유지합니다. 생성 결과를 직접 고치지 않습니다.                         |
+| P0       | 규칙     | `git`                            | 요청이 있을 때만 커밋, push, PR을 만듭니다.                                                |
+| P0       | 스킬     | `brainstorming`                  | 설계가 정해지기 전에 구현하지 않습니다.                                                    |
+| P0       | 스킬     | `writing-plans`                  | 합의된 설계를 순서 있는 검증 가능한 작업으로 나눕니다.                                     |
+| P0       | 스킬     | `implement-change`               | 범위가 정해진 변경을 구현합니다.                                                           |
+| P0       | 스킬     | `test-driven-development`        | 동작이 정해진 수정은 실패하는 테스트부터 작성합니다.                                       |
+| P0       | 스킬     | `systematic-debugging`           | 원인을 모르면 수정 전에 원인을 찾습니다.                                                   |
+| P0       | 스킬     | `fix-ci`                         | 실패한 CI를 고치고, 검사를 약하게 만들어 통과시키지 않습니다.                              |
+| P0       | 스킬     | `verification-before-completion` | 완료라고 하기 전에 증거를 확인합니다.                                                      |
+| P0       | 스킬     | `resolve-merge-conflicts`        | 충돌을 풀 때 양쪽이 의도한 동작을 남깁니다.                                                |
+| P0       | 스킬     | `requesting-code-review`         | diff의 결함을 리뷰합니다. 직접 호출합니다.                                                 |
+| P0       | 스킬     | `propose-skill`                  | 요청이 있을 때 스킬이나 규칙 초안을 만듭니다. 직접 호출합니다.                             |
+| P0       | 스킬     | `blast-radius`                   | 변경의 영향 범위를 추적합니다. 직접 호출합니다.                                            |
+| P1       | 규칙     | `requirements`                   | 말한 요구사항을 구현하고, 없는 범위를 만들지 않습니다.                                     |
+| P1       | 규칙     | `skill-promotion`                | 같은 절차를 반복해서 요청하면 스킬을 한 번 제안합니다.                                     |
+| P1       | 스킬     | `safe-refactor`                  | 동작은 그대로 두고 코드 구조만 바꿉니다.                                                   |
+| P1       | 스킬     | `receiving-code-review`          | 타당한 리뷰 의견만 반영합니다.                                                             |
+| P1       | 스킬     | `docs-from-code`                 | 이미 구현된 동작을 문서로 남깁니다.                                                        |
+| P1       | 스킬     | `onboard-repo`                   | 그 저장소용 에이전트 안내를 작성합니다.                                                    |
+| P1       | 스킬     | `token-budget`                   | 보이는 규칙, 스킬, 기록의 토큰 수를 추정합니다.                                            |
+| P1       | 스킬     | `handoff`                        | 다음 세션용으로 짧은 인수인계를 남깁니다.                                                  |
+| P1       | 스킬     | `update-deps`                    | 요청한 의존성만 올립니다.                                                                  |
+| P1       | 스킬     | `author-ci`                      | CI 워크플로를 추가하거나 수정합니다.                                                       |
+| P1       | 스킬     | `flaky-test`                     | 가끔 실패하는 테스트를 진단합니다.                                                         |
+| P1       | 스킬     | `reproduce-minimal`              | 버그를 작은 재현으로 줄입니다.                                                             |
+| P1       | 스킬     | `explain-codebase`               | 모듈이나 저장소 구조를 설명합니다.                                                         |
+| P1       | 에이전트 | `code-explorer`                  | 파일을 수정하지 않고 진입점과 계약을 찾습니다.                                             |
+| P1       | 에이전트 | `reviewer`                       | 제한된 diff의 결함을 리뷰합니다.                                                           |
+| P1       | 에이전트 | `verifier`                       | 정해진 변경을 검사하는 명령을 실행합니다.                                                  |
+| P1       | 훅       | `afterFileEdit`                  | 설정된 로컬 포매터가 있으면 수정 뒤에 실행합니다. Cursor, Claude Code.                     |
+| P1       | 훅       | `beforeShellExecution`           | 일부 파괴적 셸 명령을 막습니다. Cursor, Claude Code.                                       |
+| P2       | 스킬     | `subagent-driven-development`    | 승인된 계획을 위임 가능한 작업으로 나눕니다.                                               |
+| P2       | 스킬     | `adr`                            | 아키텍처 결정 기록을 작성합니다.                                                           |
+| P2       | 스킬     | `incident-lite`                  | 짧은 장애 기록을 작성합니다.                                                               |
+| P2       | 훅       | `sessionEnd`                     | 반복한 절차가 있으면 스킬 초안을 만들라고 알립니다. Cursor만 해당.                         |
+
+다른 팩도 같은 세 단계입니다.
+
+| 우선순위 | 팩              | 항목                             | 역할                                                                     |
+| -------- | --------------- | -------------------------------- | ------------------------------------------------------------------------ |
+| P0       | `api`           | `api-design`                     | HTTP 또는 RPC 계약을 설계하거나 변경합니다.                              |
+| P0       | `api`           | `db-migration`                   | 스키마나 저장 데이터를 변경합니다.                                       |
+| P0       | `git`           | `commit-by-theme`                | 요청이 있을 때만 커밋합니다.                                             |
+| P0       | `git`           | `finishing-a-development-branch` | 요청이 있을 때만 브랜치를 마무리합니다.                                  |
+| P0       | `web-ui`        | `frontend-design`                | 요구사항이 정해진 UI를 구현합니다.                                       |
+| P0       | `web-ui`        | `webapp-testing`                 | 요청이 있을 때 로컬 앱을 브라우저에서 확인합니다.                        |
+| P0       | `react`         | `react-best-practices`           | React 또는 Next 성능을 검토합니다. 공식 스킬이 있으면 그쪽으로 넘깁니다. |
+| P0       | `figma`         | `figma-design-to-code`           | 제공된 Figma 시안을 구현합니다.                                          |
+| P0       | `security`      | `security-pass`                  | 변경의 방어적 문제를 검토합니다.                                         |
+| P1       | `api`           | `openapi-schema`                 | OpenAPI 또는 JSON Schema 계약을 유지합니다.                              |
+| P1       | `api`           | `query-and-index`                | 측정된 쿼리나 트랜잭션 문제를 조사합니다.                                |
+| P1       | `git`           | `git-bisect`                     | 회귀를 만든 리비전을 찾습니다.                                           |
+| P1       | `git`           | `using-git-worktrees`            | 요청이 있을 때 격리된 Git worktree에서 작업합니다.                       |
+| P1       | `git`           | `cut-release`                    | 요청이 있을 때 버전 릴리스를 준비합니다.                                 |
+| P1       | `web-ui`        | `web-design-guidelines`          | 요청이 있을 때 접근성이나 UX를 검토합니다.                               |
+| P1       | `local-runtime` | `dev-containers`                 | 개발 컨테이너를 구성합니다.                                              |
+| P1       | `local-runtime` | `docker-compose-dev`             | 로컬 다중 서비스 개발 환경을 구성합니다.                                 |
+| P1       | `tools`         | `mcp-builder`                    | MCP 서버를 구현하거나 수정합니다.                                        |
+
+`docs`에는 우선순위 항목이 없습니다. 설치하면 공식 설치기가 `pdf`, `docx`, `pptx`, `xlsx`를 넣습니다.
+
+`--priority`는 저장된 잠금을 복원할 때와 `--item`에는 적용되지 않습니다. 모든 팩을 한 번에 설치하는 명령은 없습니다.
 
 `local-runtime`, `tools`에는 P0 항목이 없습니다. 항목을 직접 선택하거나 P1을 포함해야 합니다.
 

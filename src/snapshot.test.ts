@@ -93,7 +93,7 @@ test("packfuse regression suite", async (t) => {
                         if (tool === "claude" || tool === "codex")
                             assert.equal(
                                 (read(p.ruleFile!).match(/<!-- pack:general:/g) ?? []).length,
-                                6,
+                                4,
                             );
                         const installed = tree(temp);
                         await capture(() => install(opts));
