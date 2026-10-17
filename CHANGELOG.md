@@ -6,7 +6,7 @@ A first installation of `general` writes four rules: `safety`, `verification`, `
 
 `query-and-index` does not recommend an index until the execution plan shows the access path.
 
-This repository is the Cursor plugin. `.cursor-plugin/plugin.json` includes the bundled skills, rules, agents, and hooks. ChatGPT and Codex use the skills-only archive from `npm run pack:codex`. Claude Code marketplace installation is not supported yet.
+This repository is the Cursor plugin. `.cursor-plugin/plugin.json` includes the bundled skills, rules, agents, and hooks. The plugin marketplace is supported for Cursor only. Claude Code and Codex install with npm.
 
 Token estimates no longer use `js-tiktoken`. The package, CLI, and pack item versions are 1.1.1.
 

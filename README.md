@@ -75,19 +75,17 @@ If you prefer a global CLI, run `npm install -g packfuse`. You can then use `pac
 
 ### Install from a plugin marketplace
 
-If Packfuse is available in your tool's configured marketplace, install it there instead of running the npm installer for the same skills. Marketplace availability and the contents of each plugin bundle can differ; check the listing for the packs it includes. If no Packfuse listing is available, use npm above.
+Packfuse supports a plugin marketplace for Cursor only. Claude Code and Codex use the npm install commands above.
 
 | Tool        | Installation                                                                                                                   |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Cursor      | Open **Customize** in the sidebar, search for Packfuse, open its details, then choose **Install** and a project or user scope. |
-| Claude Code | Marketplace installation is not supported yet. Use the npm install command with `--tool claude`.                               |
-| Codex CLI   | Enter `/plugins`, find Packfuse in a configured marketplace, and install it. Start a new session after installation.           |
+| Claude Code | Marketplace installation is not supported. Use the npm install command with `--tool claude`.                                   |
+| Codex CLI   | Marketplace installation is not supported. Use the npm install command with `--tool codex`.                                    |
 
 This repository is the Cursor plugin. `.cursor-plugin/plugin.json` points at the bundled skills, rules, agents, and hooks. Submit the public repository at [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish). The Cursor listing includes the full catalog except the `docs` relay, and the hooks run with `node` on the user's `PATH`.
 
-ChatGPT and Codex share a skills-only package. From this repository run `npm run pack:codex`, then submit `dist/packfuse-codex.zip` in the [ChatGPT plugin portal](https://developers.openai.com/plugins/deploy/submission). That archive contains skills and `assets/logo.png`. Rules, agents, hooks, and the `docs` relay stay in this repository for Cursor and npm.
-
-See the official [Cursor plugin guide](https://cursor.com/docs/plugins) and [Codex plugin guide](https://learn.chatgpt.com/docs/plugins) for those hosts' installation options. Claude Code marketplace installation is not supported yet.
+See the official [Cursor plugin guide](https://cursor.com/docs/plugins) for installation options.
 
 For marketplace installations, use the host's plugin manager to enable, update, or remove the plugin. The npm commands below manage CLI installations.
 
@@ -114,7 +112,7 @@ In Codex CLI, use:
 $requesting-code-review Review the current diff for bugs and missing tests.
 ```
 
-For a Cursor or Codex marketplace installation, select the command shown by the host. Claude Code marketplace installation is not supported yet, so use the npm command above.
+For a Cursor marketplace installation, select the command shown by the host. Claude Code and Codex marketplace installation is not supported, so use the npm commands above.
 
 A few useful starting points:
 
@@ -385,19 +383,17 @@ npx packfuse@latest install --project --tool cursor --cwd "C:\Project\my-app"
 
 ### 플러그인 마켓에서 설치하기
 
-사용하는 도구의 마켓에 Packfuse가 있다면 그곳에서 설치할 수 있습니다. 같은 스킬을 npm과 마켓 양쪽으로 설치할 필요는 없습니다. 마켓별 제공 여부와 플러그인에 포함된 팩은 다를 수 있으므로 상세 페이지를 확인하세요. 항목이 없다면 위의 npm 설치 방법을 사용하면 됩니다.
+Packfuse 플러그인 마켓은 Cursor만 지원합니다. Claude Code와 Codex는 위의 npm 설치 명령을 사용합니다.
 
 | 도구        | 설치 방법                                                                                                                      |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Cursor      | 사이드바의 **Customize**에서 Packfuse를 검색합니다. 상세 화면에서 **Install**을 선택하고 프로젝트 또는 사용자 범위를 고릅니다. |
-| Claude Code | 마켓 설치는 아직 지원하지 않습니다. npm 설치 명령에 `--tool claude`를 사용하세요.                                              |
-| Codex CLI   | `/plugins`를 입력하고 등록된 마켓에서 Packfuse를 찾아 설치합니다. 설치 후 새 세션을 시작합니다.                                |
+| Claude Code | 마켓 설치는 지원하지 않습니다. npm 설치 명령에 `--tool claude`를 사용하세요.                                                   |
+| Codex CLI   | 마켓 설치는 지원하지 않습니다. npm 설치 명령에 `--tool codex`를 사용하세요.                                                    |
 
 이 저장소가 Cursor 플러그인입니다. `.cursor-plugin/plugin.json`이 포함된 스킬, 룰, 에이전트, 훅을 가리킵니다. 공개 저장소 주소를 [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish)에 제출합니다. Cursor 목록에는 `docs` 릴레이를 뺀 전체 카탈로그가 들어가고, 훅은 사용자 `PATH`의 `node`로 실행됩니다.
 
-ChatGPT와 Codex는 스킬만 담은 패키지를 함께 씁니다. 이 저장소에서 `npm run pack:codex`를 실행한 뒤 `dist/packfuse-codex.zip`을 [ChatGPT 플러그인 포털](https://developers.openai.com/plugins/deploy/submission)에 제출합니다. 그 압축 파일에는 스킬과 `assets/logo.png`가 들어갑니다. 룰, 에이전트, 훅, `docs` 릴레이는 Cursor와 npm용으로 이 저장소에 남습니다.
-
-Cursor와 Codex의 설치 옵션은 공식 [Cursor 플러그인 안내](https://cursor.com/docs/plugins), [Codex 플러그인 안내](https://learn.chatgpt.com/docs/plugins)를 참고하세요. Claude Code 마켓 설치는 아직 지원하지 않습니다.
+설치 옵션은 공식 [Cursor 플러그인 안내](https://cursor.com/docs/plugins)를 참고하세요.
 
 마켓으로 설치한 플러그인은 해당 도구의 플러그인 관리자에서 활성화·업데이트·삭제합니다. 아래 CLI 명령은 npm으로 설치한 구성을 관리할 때 사용합니다.
 
@@ -424,7 +420,7 @@ Codex CLI에서는 다음과 같이 호출합니다.
 $requesting-code-review 현재 diff에서 버그와 빠진 테스트를 검토해줘.
 ```
 
-Cursor나 Codex 마켓 설치는 도구에 표시되는 명령을 선택하세요. Claude Code 마켓 설치는 아직 지원하지 않으므로 위의 npm 명령을 사용하세요.
+Cursor 마켓 설치는 도구에 표시되는 명령을 선택하세요. Claude Code와 Codex 마켓 설치는 지원하지 않으므로 위의 npm 명령을 사용하세요.
 
 | 하고 싶은 작업             | 스킬                     | npm 설치 기준       |
 | -------------------------- | ------------------------ | ------------------- |
