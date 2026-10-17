@@ -9,7 +9,7 @@ description: "Use when investigating database query performance or transaction b
 
 1. Capture the slow query, parameters, representative data scale, and baseline latency/query count.
 2. Inspect the database execution plan and relevant indexes. Check N+1 access, unnecessary columns, lock contention, and transaction scope.
-3. Choose one justified change; weigh write/storage cost and selectivity before adding an index.
+3. Choose one justified change; weigh write/storage cost and selectivity before adding an index. Do not recommend an index until the execution plan shows the access path.
 4. Remeasure on comparable inputs and verify correctness and concurrency behavior. Document when production measurements are unavailable.
 
 ## Completion
