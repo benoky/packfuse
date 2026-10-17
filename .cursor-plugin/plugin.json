@@ -1,6 +1,6 @@
 {
     "name": "packfuse",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Coding workflows for planning a change, fixing a bug, reviewing a diff, and checking the result. Includes skills, rules, agents, and hooks.",
     "author": {
         "name": "benoky77"

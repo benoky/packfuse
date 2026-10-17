@@ -1,6 +1,6 @@
 {
     "id": "docs",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "items": [],
     "relay": {
         "source": "https://github.com/anthropics/skills",

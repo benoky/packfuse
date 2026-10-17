@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+A first installation of `general` writes four rules: `safety`, `verification`, `code-change`, and `git`. `requirements` and `skill-promotion` install with `--priority p1`.
+
+`query-and-index` does not recommend an index until the execution plan shows the access path.
+
+This repository is the Cursor plugin. `.cursor-plugin/plugin.json` includes the bundled skills, rules, agents, and hooks. ChatGPT and Codex use the skills-only archive from `npm run pack:codex`. Claude Code marketplace installation is not supported yet.
+
+Token estimates no longer use `js-tiktoken`. The package, CLI, and pack item versions are 1.1.1.
+
 ## 1.1.0
 
 Installs apply through a file transaction and roll back if a write fails. Manifests are validated before they are applied. An update refreshes an installed item when its version changes, and it does not copy that pack into another tool.
