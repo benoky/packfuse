@@ -1,0 +1,27 @@
+{
+    "name": "packfuse",
+    "version": "1.1.0",
+    "description": "Coding workflows for planning a change, fixing a bug, reviewing a diff, and checking the result. Includes skills, rules, agents, and hooks.",
+    "author": {
+        "name": "benoky77"
+    },
+    "homepage": "https://www.npmjs.com/package/packfuse",
+    "repository": "https://github.com/benoky/packfuse",
+    "license": "MIT",
+    "keywords": ["skills", "rules", "agents", "hooks", "cursor"],
+    "logo": "assets/logo.png",
+    "skills": [
+        "./packs/general/skills",
+        "./packs/git/skills",
+        "./packs/web-ui/skills",
+        "./packs/react/skills",
+        "./packs/figma/skills",
+        "./packs/api/skills",
+        "./packs/local-runtime/skills",
+        "./packs/security/skills",
+        "./packs/tools/skills"
+    ],
+    "rules": "./packs/general/rules",
+    "agents": "./packs/general/agents",
+    "hooks": "./hooks/hooks.json"
+}

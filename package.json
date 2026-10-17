@@ -15,7 +15,7 @@
         "build": "tsc",
         "packfuse": "tsx src/cli.ts",
         "typecheck": "tsc --noEmit",
-        "test": "node --import tsx --test src/snapshot.test.ts src/evals.test.ts src/codex-plugin.test.ts",
+        "test": "node --import tsx --test src/snapshot.test.ts src/evals.test.ts src/codex-plugin.test.ts src/cursor-plugin.test.ts",
         "pack:codex": "tsx scripts/pack-codex-plugin.ts",
         "validate": "node --import tsx src/validate.ts",
         "eval": "node evals/run.mjs"
