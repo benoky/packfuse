@@ -38,13 +38,11 @@ dry-run: no files changed
   write <temp>/.cursor/rules/verification.mdc
   write <temp>/.cursor/rules/code-change.mdc
   write <temp>/.cursor/rules/git.mdc
-  write <temp>/.cursor/skills/systematic-debugging/SKILL.md
-  write <temp>/.cursor/skills/requesting-code-review/SKILL.md
+  write <temp>/.cursor/skills/implement-change/SKILL.md
   write <temp>/.packfuse/lock.json
-files=33
 ```
 
-The middle of the file list is omitted here. The command reported 33 planned writes and `dry-run: no files changed`. The same binary planned 6 writes for `--pack security` and 5 writes for `--pack git --item commit-by-theme`.
+The middle of the file list is omitted here. Relayed official skills print `npx skills add` instead of `write .../SKILL.md`. Re-run the command after a catalog change before quoting write counts.
 
 After a real install, open that project in Cursor, Claude Code, or Codex and start a new session. Invoke `requesting-code-review` with `/` in Cursor or Claude Code, or with `$` in Codex CLI. That last step depends on the host UI and was not recorded.
 

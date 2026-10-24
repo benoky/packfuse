@@ -18,7 +18,7 @@ npm run build
 node dist/cli.js install --project --tool cursor --dry-run
 ```
 
-원본 팩 구성, 항목 이름, 우선순위, 도구 선택 범위를 유지하고 패키지·CLI·팩 항목 버전은 `1.0.0`으로 둔다. 47개 스킬 본문은 영어이며 사용 조건, 제외 조건, 절차, 완료 기준을 포함한다.
+원본 팩 구성, 항목 이름, 우선순위, 도구 선택 범위를 유지하고 패키지·CLI·팩 항목 버전은 `1.0.0`으로 둔다. Packfuse 자체 스킬 본문은 영어이며 사용 조건, 제외 조건, 절차, 완료 기준을 포함한다. 공식 원문이 있는 항목은 로컬 본문 없이 `npx skills add`로 중계한다.
 
 ## 설치 상태와 기존 버전 호환
 
@@ -73,13 +73,13 @@ node dist/cli.js doctor --project --tool codex
 
 `sessionEnd`는 transcript를 검사하거나 파일을 생성하지 않는 선택적 안내다. 실제 반복 패턴을 감지했다고 주장하지 않는다. Codex 훅은 현재 카탈로그에서 지원 대상이 아니며 임의 형식으로 설치하지 않는다.
 
-## 벤더 래퍼
+## 공식 스킬 중계
 
-React·Figma 래퍼는 원문을 번들하지 않는다. 공식 스킬이 있으면 위임하고, 없으면 공식 출처 및 설치 필요 사항을 안내한다. manifest의 `vendor`는 수동 설치 힌트이며 임의 셸 명령으로 자동 실행하지 않는다. 설치 명령의 네트워크 접근, 라이선스, 지원 도구와 실제 설치 경로를 사용자가 검토해야 한다.
+공식 GitHub 스킬은 로컬 `SKILL.md` 없이 `item.relay` 또는 팩 `relay`로 `npx skills add`를 실행한다. Cursor 플러그인 번들에는 중계 항목이 들어가지 않는다. 설치 전부터 있던 동명 공식 스킬은 소유로 기록하지 않고 보존한다.
 
-`web-design-guidelines`는 공식 스킬과 이름이 같으므로 재귀 위임을 하지 않도록 명시했다. 공식 버전이 이미 설치되어 있으면 설치기가 보존한다. `vendor` 힌트는 자동 실행하지 않는다.
+`docs`는 팩 단위 중계다. `--pack docs`일 때 Anthropic `pdf`, `docx`, `pptx`, `xlsx`를 설치한다. 해당 중계가 잠금에 없을 때의 `update`는 이 명령을 실행하지 않는다. `--dry-run`은 명령만 출력한다. `uninstall`은 기록한 소유 이름만 `skills remove`로 지우며, `skills remove --all`은 쓰지 않는다.
 
-`docs` 팩만 예외다. 스킬 원문이 없고, `--pack docs`일 때 skills CLI로 Anthropic `pdf`, `docx`, `pptx`, `xlsx`를 설치한다. 기본 설치와 `update`는 이 명령을 실행하지 않는다. `--dry-run`은 명령만 출력한다.
+기본 `general` 설치는 Superpowers P0 중계를 함께 실행한다. `implement-change` 등 Packfuse 자체 항목만 이 저장소의 정본을 쓴다.
 
 ## 평가와 검증 범위
 

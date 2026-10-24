@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Official Superpowers, Anthropic, Vercel, and Figma skills install through `npx skills add` instead of Packfuse copies. `implement-change` and other Packfuse-owned items stay local. `uninstall` removes official names that Packfuse recorded as owned, for pack relays and item relays, and leaves skills that were already present. Locks without ownership records still only drop the pack relay from the lock.
+
+The always-on `git` rule allows commits that a user-approved plan or explicitly invoked skill includes, and still requires an explicit finish request for push, pull requests, tags, and publishes. Force-push, skipped hooks, history rewrites, and unnamed shared-branch pushes stay forbidden without explicit authorization.
+
 ## 1.1.1
 
 A first installation of `general` writes four rules: `safety`, `verification`, `code-change`, and `git`. `requirements` and `skill-promotion` install with `--priority p1`.

@@ -115,7 +115,7 @@ Claude always-on 규칙은 `CLAUDE.md` 블록, `globs` 규칙은 `.claude/rules`
 
 명시 호출: Cursor `disable-model-invocation: true`, Codex `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`, Claude는 슬래시 스킬. 정본 manifest는 `invoke: slash`를 가지며 설치기가 도구별 필드로 바꾼다.
 
-벤더 공식 팩(Vercel, Figma)은 원문 대신 공식 스킬에 위임하는 래퍼다. 현재 보완판은 공식 설치 안내를 제공하며 자동 명령 실행은 지원하지 않는다.
+공식 원문이 있는 스킬은 로컬 래퍼 없이 `npx skills add`로 중계한다. Packfuse가 소유하는 항목만 이 저장소의 `SKILL.md`를 설치한다.
 
 예:
 
@@ -144,7 +144,7 @@ Claude always-on 규칙은 `CLAUDE.md` 블록, `globs` 규칙은 `.claude/rules`
 
 사용자 문장·기존 훅 항목은 유지하고, 우리 훅만 병합·제거한다. 잠금에 없는 같은 이름 스킬이 이미 있으면 덮어쓰지 않고 건너뛴다.
 
-벤더 래퍼의 `uninstall`은 래퍼만 지운다. 공식 팩은 사용자가 공식 명령으로 지운다.
+중계 스킬의 `uninstall`은 Packfuse가 소유로 기록한 공식 이름만 `npx skills remove`로 지운다.
 
 설치기는 Node CLI(`npx packfuse`)로 만든다. macOS·Linux·Windows 공통이고, 훅 스크립트도 Node로 쓴다.
 
@@ -166,7 +166,7 @@ P0 자동 스킬은 팩당 8개 이하. description은 무엇을/언제/언제 �
 ### 이름
 
 - 스킬 `name` = 폴더명. 팩 사이에서도 유일.
-- 래퍼는 위임 대상과 이름을 다르게 한다. 예: `react-best-practices` → 공식 `vercel-react-best-practices`. 이름이 같으면 자기 자신을 다시 부르지 않는다.
+- 공식 스킬 id가 Packfuse id와 다르면 `item.relay.skill`에 공식 이름을 적는다. 예: `react-best-practices` → `vercel-react-best-practices`.
 - 차용 스킬은 원본 이름 유지. 같은 이름이 이미 설치돼 있으면 건너뛴다(위 설치 규칙).
 
 ### 규칙 정본
@@ -191,7 +191,7 @@ packs/general/rules/git.md    # 정본. 짧은 문장만
 | `requires` | `<팩>:<id>` 목록                           |
 | `version`  | semver                                     |
 | `source`   | `self` 또는 원천 저장소·라이선스           |
-| `vendor`   | 래퍼면 공식 설치 명령                      |
+| `relay`    | 공식 GitHub 스킬 중계 `{ source, skill? }` |
 
 ### 검증 (CI)
 
@@ -208,7 +208,7 @@ packs/general/rules/git.md    # 정본. 짧은 문장만
 
 | 위치                                     | 항목                                                                                                            | 이유                                    |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| `general` 규칙 `git`                     | 커밋/푸시/PR은 요청 있을 때만                                                                                   | `git` 팩 없이도 실수 커밋 방지          |
+| `general` 규칙 `git`                     | 커밋은 요청 또는 승인된 계획 스텝. push/PR은 요청한 마무리만. 파괴적 Git은 명시 허가                            | `git` 팩 없이도 실수 커밋 방지          |
 | `general` 스킬 `resolve-merge-conflicts` | 구현 중 충돌                                                                                                    | Git 의식이 아니라 변경을 끝나게 하는 일 |
 | `git` 팩                                 | P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `using-git-worktrees`, `cut-release` | Agent에게 저장소 작업을 맡길 때만 설치  |
 
@@ -239,7 +239,7 @@ P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `usin
 
 ### `figma`
 
-`figma-design-to-code` 래퍼(공식 Figma).
+`figma-design-to-code` 중계(`figma/mcp-server-guide`).
 
 ### `api`
 
@@ -259,7 +259,7 @@ P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `usin
 
 ### `docs`
 
-스킬 파일 없음. `install --pack docs`가 `npx skills add https://github.com/anthropics/skills`로 `pdf`, `docx`, `pptx`, `xlsx`만 설치한다. `--dry-run`은 명령만 출력한다. `uninstall`은 그 공식 스킬을 지우지 않는다. 기본 `general` 설치에는 포함되지 않는다.
+스킬 파일 없음. `install --pack docs`가 `npx skills add https://github.com/anthropics/skills`로 `pdf`, `docx`, `pptx`, `xlsx`만 설치한다. `--dry-run`은 명령만 출력한다. `uninstall`은 소유로 기록한 공식 이름만 지운다. 기본 `general` 설치에는 포함되지 않는다.
 
 ### 앱 템플릿
 
@@ -301,7 +301,7 @@ P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `usin
 
 ## 8. 공개·확산
 
-- README: 최상단 언어별 목차, 영어 본문, 한국어 본문. `npx packfuse`. 팩 목록 전부. 래퍼는 아래쪽.
+- README: 최상단 언어별 목차, 영어 본문, 한국어 본문. `npx packfuse`. 팩 목록 전부. 중계는 카탈로그에 표시.
 - 배포: npm `packfuse` 한 버전(설치기+전 팩). GitHub 릴리스. Cursor·Claude 플러그인 마켓도 이 출시에 등록한다.
 - 노출: `awesome-cursor`·`awesome-claude-code`류 목록, Cursor 포럼, 각 도구 커뮤니티에 eval 결과와 함께 소개.
 - 기여: `CONTRIBUTING.md`, 이슈 템플릿(스킬 제안 / 설치 버그).
@@ -314,7 +314,7 @@ P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `usin
 1. 설치기: `--home`/`--project`, 변환기(Cursor `.mdc`·User Rules 블록, Claude `CLAUDE.md`+`.claude/rules`, Codex `AGENTS.md`+에이전트 TOML, 훅 세 도구), 잠금 `.packfuse/`, `--dry-run`, `uninstall`/`update`/`list`/`doctor`.
 2. `general` 전부(P0·P1·P2 규칙·스킬·에이전트·훅). `LICENSE`, `THIRD_PARTY_NOTICES.md`, 검증 CI.
 3. `git`, `api`, `web-ui`, `security`, `local-runtime`, `tools`.
-4. 래퍼 `react`, `figma`. Vercel·Figma는 원문 없이 공식 설치 안내 및 설치된 스킬 위임. 라이선스 확인 후 `THIRD_PARTY_NOTICES.md`에 적는다.
+4. `react`, `figma` 등 공식 원문 항목은 `item.relay`로 중계한다. 라이선스 확인 후 `THIRD_PARTY_NOTICES.md`에 적는다.
 5. eval, README, `CONTRIBUTING.md`, npm 배포, 플러그인 마켓.
 
 ## 10. 유지 비용

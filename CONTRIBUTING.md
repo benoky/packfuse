@@ -8,4 +8,4 @@ Packs live under `packs/<id>/`. Each item is listed in `manifest.json`.
 4. `npm test` must pass (dry-run install + snapshot).
 5. Prefer an eval task under `evals/` for new automatic skills.
 
-Do not copy vendor skill trees. Wrappers must use a different `name` than the official skill.
+Do not copy vendor skill trees. If an official skill exists, add `"relay": { "source": "owner/repo", "skill": "optional-name" }` on the item and omit the local skill directory. Packfuse then runs `npx skills add` / `remove`. Keep a local `SKILL.md` only for Packfuse-owned items.
