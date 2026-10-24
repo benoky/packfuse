@@ -32,7 +32,7 @@ npx packfuse@latest install --project --tool cursor --dry-run
 A local build of 1.1.1, run as `node dist/cli.js install --project --tool cursor --dry-run` in an empty temp directory, printed:
 
 ```text
-cursor: estimated selected always-on tokens≈516 (character approximation, not a model tokenizer; descriptions + unconditional rules; excludes host prompts)
+cursor: estimated selected always-on tokens≈404 (character approximation, not a model tokenizer; descriptions + unconditional rules; excludes host prompts)
 dry-run: no files changed
   write <temp>/.cursor/rules/safety.mdc
   write <temp>/.cursor/rules/verification.mdc
@@ -46,7 +46,7 @@ The middle of the file list is omitted here. Relayed official skills print `npx 
 
 After a real install, open that project in Cursor, Claude Code, or Codex and start a new session. Invoke `requesting-code-review` with `/` in Cursor or Claude Code, or with `$` in Codex CLI. That last step depends on the host UI and was not recorded.
 
-A clean `--home --tool claude --dry-run` against an empty profile planned 29 writes, including `~/.claude/CLAUDE.md` and the default skills. A 1.0.0 home lock can still name `docs:docs-pptx`. `update` drops those retired ids, deletes the files it recorded for them, and runs the official docs installer. Later updates run that installer again while `docs` stays selected.
+A clean `--home --tool claude --dry-run` against an empty profile planned 14 writes, including `~/.claude/CLAUDE.md` and the Packfuse-owned default skills, plus the official skill installer commands. A 1.0.0 home lock can still name `docs:docs-pptx`. `update` drops those retired ids, deletes the files it recorded for them, and runs the official docs installer. Later updates run that installer again while `docs` stays selected.
 
 ## Example project
 

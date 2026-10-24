@@ -33,7 +33,7 @@ Linux / Node.js v24.19.0 환경에서 다음을 확인했다.
 
 ## 적용 전 확인
 
-패키지·CLI·팩 항목 버전은 `1.0.0`으로 유지했다. 이 저장소의 `package.json`은 기존 배포 메타데이터(라이선스, 저장소, `files`)를 유지하고 `private`는 넣지 않았다. 상세 적용 및 상태 마이그레이션은 [MAINTENANCE.md](MAINTENANCE.md)를 참고한다.
+패키지·CLI·팩 항목 버전은 `1.1.1`이다. 이 저장소의 `package.json`은 기존 배포 메타데이터(라이선스, 저장소, `files`)를 유지하고 `private`는 넣지 않았다. 상세 적용 및 상태 마이그레이션은 [MAINTENANCE.md](MAINTENANCE.md)를 참고한다.
 
 ## 재검토 결함 수정
 
