@@ -212,45 +212,45 @@ A priority is an install boundary, not a quality ranking. P0 is the default set 
 
 `general` P0 is what a first installation writes. Higher tiers add the rows below; they do not replace P0.
 
-| Priority | Kind  | Item                             | Role                                                                                                                 |
-| -------- | ----- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| P0       | Rule  | `safety`                         | Keep secrets out. Skip destructive commands and force-push unless this conversation asked.                           |
-| P0       | Rule  | `verification`                   | Run checks for the change. A screenshot alone does not verify UI behavior.                                           |
-| P0       | Rule  | `code-change`                    | Keep the diff small and complete. Do not hand-edit generated output.                                                 |
-| P0       | Rule  | `git`                            | Commit when asked or when an approved plan step includes it. Push, PR, tag, and publish only for a requested finish. |
-| P0       | Skill | `brainstorming`                  | Settle an open design before coding.                                                                                 |
-| P0       | Skill | `writing-plans`                  | Turn an agreed design into ordered, verifiable tasks.                                                                |
-| P0       | Skill | `implement-change`               | Implement a bounded change that is ready to build.                                                                   |
-| P0       | Skill | `test-driven-development`        | Drive a known behavior change with a failing test first.                                                             |
-| P0       | Skill | `systematic-debugging`           | Find an unknown cause before editing.                                                                                |
-| P0       | Skill | `fix-ci`                         | Fix a failing CI job without weakening the check.                                                                    |
-| P0       | Skill | `verification-before-completion` | Gather evidence before calling the change done.                                                                      |
-| P0       | Skill | `resolve-merge-conflicts`        | Keep both intended behaviors while resolving a conflict.                                                             |
-| P0       | Skill | `requesting-code-review`         | Review a diff for defects. Invoked explicitly.                                                                       |
-| P0       | Skill | `propose-skill`                  | Draft a skill or rule when asked. Invoked explicitly.                                                                |
-| P0       | Skill | `blast-radius`                   | Trace the impact of a diff. Invoked explicitly.                                                                      |
-| P1       | Rule  | `requirements`                   | Implement the stated requirements and do not invent scope.                                                           |
-| P1       | Rule  | `skill-promotion`                | Suggest a skill once after the same procedure is requested repeatedly.                                               |
-| P1       | Skill | `safe-refactor`                  | Reorganize code without changing behavior.                                                                           |
-| P1       | Skill | `receiving-code-review`          | Apply review feedback that holds up.                                                                                 |
-| P1       | Skill | `docs-from-code`                 | Document behavior that is already implemented.                                                                       |
-| P1       | Skill | `onboard-repo`                   | Write repository-specific agent instructions.                                                                        |
-| P1       | Skill | `token-budget`                   | Estimate tokens for visible rules, skills, or history.                                                               |
-| P1       | Skill | `handoff`                        | Leave a compact note for the next session.                                                                           |
-| P1       | Skill | `update-deps`                    | Upgrade dependencies the user asked to upgrade.                                                                      |
-| P1       | Skill | `author-ci`                      | Add or change a CI workflow.                                                                                         |
-| P1       | Skill | `flaky-test`                     | Diagnose a test that fails only sometimes.                                                                           |
-| P1       | Skill | `reproduce-minimal`              | Reduce a bug to a small reproduction.                                                                                |
-| P1       | Skill | `explain-codebase`               | Explain a module or the repository structure.                                                                        |
-| P1       | Agent | `code-explorer`                  | Read-only search for entry points and contracts.                                                                     |
-| P1       | Agent | `reviewer`                       | Review a bounded diff for defects.                                                                                   |
-| P1       | Agent | `verifier`                       | Run the checks that exercise a defined change.                                                                       |
-| P1       | Hook  | `afterFileEdit`                  | Run a configured local formatter after an edit. Cursor and Claude Code.                                              |
-| P1       | Hook  | `beforeShellExecution`           | Block a few destructive shell commands. Cursor and Claude Code.                                                      |
-| P2       | Skill | `subagent-driven-development`    | Split an approved plan across delegated tasks.                                                                       |
-| P2       | Skill | `adr`                            | Write an architecture decision record.                                                                               |
-| P2       | Skill | `incident-lite`                  | Write a short incident note.                                                                                         |
-| P2       | Hook  | `sessionEnd`                     | Remind you to draft a skill if a procedure was repeated. Cursor only.                                                |
+| Priority | Kind  | Item                             | Role                                                                                                                      |
+| -------- | ----- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| P0       | Rule  | `safety`                         | Keep secrets out. Skip destructive commands and force-push unless this conversation asked.                                |
+| P0       | Rule  | `verification`                   | Run checks for the change. A screenshot alone does not verify UI behavior.                                                |
+| P0       | Rule  | `code-change`                    | Keep the diff small and complete. Do not add unsolicited dependencies or abstractions. Do not hand-edit generated output. |
+| P0       | Rule  | `git`                            | Commit when asked or when an approved plan step includes it. Push, PR, tag, and publish only for a requested finish.      |
+| P0       | Skill | `brainstorming`                  | Settle an open design before coding.                                                                                      |
+| P0       | Skill | `writing-plans`                  | Turn an agreed design into ordered, verifiable tasks.                                                                     |
+| P0       | Skill | `implement-change`               | Implement a bounded change that is ready to build.                                                                        |
+| P0       | Skill | `test-driven-development`        | Drive a known behavior change with a failing test first.                                                                  |
+| P0       | Skill | `systematic-debugging`           | Find an unknown cause before editing.                                                                                     |
+| P0       | Skill | `fix-ci`                         | Fix a failing CI job without weakening the check.                                                                         |
+| P0       | Skill | `verification-before-completion` | Gather evidence before calling the change done.                                                                           |
+| P0       | Skill | `resolve-merge-conflicts`        | Keep both intended behaviors while resolving a conflict.                                                                  |
+| P0       | Skill | `requesting-code-review`         | Review a diff for defects. Invoked explicitly.                                                                            |
+| P0       | Skill | `propose-skill`                  | Draft a skill or rule when asked. Invoked explicitly.                                                                     |
+| P0       | Skill | `blast-radius`                   | Trace the impact of a diff. Invoked explicitly.                                                                           |
+| P1       | Rule  | `requirements`                   | Implement the stated requirements and do not invent scope.                                                                |
+| P1       | Rule  | `skill-promotion`                | Suggest a skill once after the same procedure is requested repeatedly.                                                    |
+| P1       | Skill | `safe-refactor`                  | Reorganize code without changing behavior.                                                                                |
+| P1       | Skill | `receiving-code-review`          | Apply review feedback that holds up.                                                                                      |
+| P1       | Skill | `docs-from-code`                 | Document behavior that is already implemented.                                                                            |
+| P1       | Skill | `onboard-repo`                   | Write repository-specific agent instructions.                                                                             |
+| P1       | Skill | `token-budget`                   | Estimate tokens for visible rules, skills, or history.                                                                    |
+| P1       | Skill | `handoff`                        | Leave a compact note for the next session.                                                                                |
+| P1       | Skill | `update-deps`                    | Upgrade dependencies the user asked to upgrade.                                                                           |
+| P1       | Skill | `author-ci`                      | Add or change a CI workflow.                                                                                              |
+| P1       | Skill | `flaky-test`                     | Diagnose a test that fails only sometimes.                                                                                |
+| P1       | Skill | `reproduce-minimal`              | Reduce a bug to a small reproduction.                                                                                     |
+| P1       | Skill | `explain-codebase`               | Explain a module or the repository structure.                                                                             |
+| P1       | Agent | `code-explorer`                  | Read-only search for entry points and contracts.                                                                          |
+| P1       | Agent | `reviewer`                       | Review a bounded diff for defects.                                                                                        |
+| P1       | Agent | `verifier`                       | Run the checks that exercise a defined change.                                                                            |
+| P1       | Hook  | `afterFileEdit`                  | Run a configured local formatter after an edit. Cursor and Claude Code.                                                   |
+| P1       | Hook  | `beforeShellExecution`           | Block a few destructive shell commands. Cursor and Claude Code.                                                           |
+| P2       | Skill | `subagent-driven-development`    | Split an approved plan across delegated tasks.                                                                            |
+| P2       | Skill | `adr`                            | Write an architecture decision record.                                                                                    |
+| P2       | Skill | `incident-lite`                  | Write a short incident note.                                                                                              |
+| P2       | Hook  | `sessionEnd`                     | Remind you to draft a skill if a procedure was repeated. Cursor only.                                                     |
 
 Other packs use the same three boundaries:
 
@@ -559,7 +559,7 @@ npx packfuse@latest install --project --tool codex --pack general --item handoff
 | -------- | -------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | P0       | 규칙     | `safety`                         | 비밀을 남기지 않습니다. 이 대화에서 요청하지 않은 파괴적 명령과 강제 push는 하지 않습니다.                       |
 | P0       | 규칙     | `verification`                   | 변경된 동작을 검사합니다. 스크린샷만으로 UI 동작을 확인했다고 하지 않습니다.                                     |
-| P0       | 규칙     | `code-change`                    | diff를 작고 완전하게 유지합니다. 생성 결과를 직접 고치지 않습니다.                                               |
+| P0       | 규칙     | `code-change`                    | diff를 작고 완전하게 유지합니다. 요청하지 않은 의존성·추상화는 넣지 않습니다. 생성 결과를 직접 고치지 않습니다.  |
 | P0       | 규칙     | `git`                            | 요청이 있거나 승인한 계획 스텝에 커밋이 있을 때만 커밋합니다. push, PR, 태그, 배포는 요청한 마무리만 해당합니다. |
 | P0       | 스킬     | `brainstorming`                  | 설계가 정해지기 전에 구현하지 않습니다.                                                                          |
 | P0       | 스킬     | `writing-plans`                  | 합의된 설계를 순서 있는 검증 가능한 작업으로 나눕니다.                                                           |

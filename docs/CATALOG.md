@@ -38,7 +38,7 @@ Command 파일 없음.
 | `requirements`    | 정본 `rules/*.md` → 설치기가 도구별로 변환 | P1  | 세 도구 | 요구 누락 금지, 구현 전 이의. 기본 설치에는 없음                                                                                                          | 자체 |
 | `safety`          | 정본 1개                                   | P0  | 세 도구 | 시크릿, 파괴적 명령                                                                                                                                       | 자체 |
 | `verification`    | 정본 1개                                   | P0  | 세 도구 | 테스트, UI면 동작 확인                                                                                                                                    | 자체 |
-| `code-change`     | 정본 1개                                   | P0  | 세 도구 | 최소 diff, 생성물 미수정                                                                                                                                  | 자체 |
+| `code-change`     | 정본 1개                                   | P0  | 세 도구 | 최소 diff, 요청하지 않은 의존성·추상화 금지, 생성물 미수정                                                                                                | 자체 |
 | `git`             | 정본 1개                                   | P0  | 세 도구 | 커밋은 요청 또는 승인된 계획/명시 스킬 스텝일 때만. push·PR·태그·배포는 요청한 마무리만. force-push·훅 생략·공유 브랜치 미요청 푸시 금지. `git` 팩과 별개 | 자체 |
 | `skill-promotion` | 정본 1개, 짧게                             | P1  | 세 도구 | 같은 절차를 다시 지시할 때만 제안(패턴당 1회). 구현 도중에는 제안하지 않음. 놓쳐도 됨. 기본 설치에는 없음. `requires: general:propose-skill`              | 자체 |
 
@@ -49,33 +49,33 @@ Command 파일 없음.
 
 ## general — Skills
 
-| id                               | 구성                                                          | 호출          | P   | tools   | 역할                                                                                                    | 원천                                         |
-| -------------------------------- | ------------------------------------------------------------- | ------------- | --- | ------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `brainstorming`                  | 중계 `obra/superpowers`                                       | 자동 또는 `/` | P0  | 세 도구 | 구현 전 질문·대안·설계 확인                                                                             | Superpowers `brainstorming`                  |
-| `writing-plans`                  | 중계 `obra/superpowers`                                       | 자동 또는 `/` | P0  | 세 도구 | 작은 태스크·검증 단위로 계획                                                                            | Superpowers `writing-plans`                  |
-| `implement-change`               | SKILL.md                                                      | 자동          | P0  | 세 도구 | 탐색→최소 변경→검증                                                                                     | 자체. Superpowers `executing-plans` 요지     |
-| `test-driven-development`        | 중계 `obra/superpowers`                                       | 자동          | P0  | 세 도구 | 실패 테스트→최소 구현→통과                                                                              | Superpowers `test-driven-development`        |
-| `systematic-debugging`           | 중계 `obra/superpowers`                                       | 자동          | P0  | 세 도구 | 재현→가설→수정→재검증                                                                                   | Superpowers `systematic-debugging`           |
-| `fix-ci`                         | SKILL.md                                                      | 자동          | P0  | 세 도구 | 실패한 체크만, 로그 근거                                                                                | 자체                                         |
-| `safe-refactor`                  | SKILL.md                                                      | 자동          | P1  | 세 도구 | 동작 유지 리팩터                                                                                        | 자체                                         |
-| `verification-before-completion` | 중계 `obra/superpowers`                                       | 자동          | P0  | 세 도구 | 끝내기 전 테스트·동작 확인                                                                              | Superpowers `verification-before-completion` |
-| `requesting-code-review`         | 중계 `obra/superpowers`                                       | `/`           | P0  | 세 도구 | 버그·회귀·계약 위주 리뷰. 체크리스트는 `reviewer`와 공유                                                | Superpowers `requesting-code-review`         |
-| `receiving-code-review`          | 중계 `obra/superpowers`                                       | `/`           | P1  | 세 도구 | 리뷰 피드백 반영                                                                                        | Superpowers `receiving-code-review`          |
-| `docs-from-code`                 | SKILL.md                                                      | `/`           | P1  | 세 도구 | 코드를 정본으로 문서화                                                                                  | 자체                                         |
-| `onboard-repo`                   | SKILL.md                                                      | `/`           | P1  | 세 도구 | `AGENTS.md` 초안 제안                                                                                   | 자체                                         |
-| `propose-skill`                  | SKILL.md, `references/promotion-criteria.md`                  | `/`           | P0  | 세 도구 | 규칙이 가리키거나 사용자가 `/`로 열 때만 초안. 파일은 안 씀                                             | 자체                                         |
-| `token-budget`                   | SKILL.md, `scripts/`(집계)                                    | `/`           | P1  | 세 도구 | 보이는 규칙·스킬·기록의 토큰 비중과 절약 제안. 파일은 안 씀. 숨은 프롬프트·과금 토큰은 대상이 아님      | 자체                                         |
-| `handoff`                        | SKILL.md                                                      | `/`           | P1  | 세 도구 | 목표·결정·파일·다음 작업·제약만 담은 인수인계. 새 채팅에 붙여 넣음. 원문·폐기한 안은 제외. 파일은 안 씀 | 자체                                         |
-| `blast-radius`                   | SKILL.md                                                      | `/`           | P0  | 세 도구 | 작은 diff가 깨뜨릴 곳                                                                                   | 커뮤니티(Cursor 마켓 `blast-radius` 역할)    |
-| `resolve-merge-conflicts`        | SKILL.md                                                      | 자동          | P0  | 세 도구 | 의미 유지하며 충돌 해결. Git 팩 아님                                                                    | 자체                                         |
-| `update-deps`                    | SKILL.md                                                      | `/`           | P1  | 세 도구 | 의존성 하나씩 올리고 테스트                                                                             | 자체 (Cursor 학습 `/update-deps` 패턴)       |
-| `author-ci`                      | SKILL.md                                                      | `/`           | P1  | 세 도구 | 이 레포 러너에 워크플로 추가                                                                            | 자체                                         |
-| `flaky-test`                     | SKILL.md                                                      | 자동          | P1  | 세 도구 | 흔들림 재현·격리                                                                                        | 자체                                         |
-| `reproduce-minimal`              | SKILL.md                                                      | `/`           | P1  | 세 도구 | 버그를 최소 재현으로                                                                                    | 자체                                         |
-| `explain-codebase`               | SKILL.md                                                      | `/`           | P1  | 세 도구 | 모듈 지도. `onboard-repo`보다 깊게                                                                      | 자체                                         |
-| `subagent-driven-development`    | 중계 `obra/superpowers`. `requires: general:reviewer, general:writing-plans` | `/`만 | P2 | 세 도구 | 계획 태스크마다 새 구현+리뷰 서브에이전트 | Superpowers `subagent-driven-development` |
-| `adr`                            | SKILL.md, references(템플릿)                                  | `/`           | P2  | 세 도구 | 아키텍처 결정 기록                                                                                      | 자체                                         |
-| `incident-lite`                  | SKILL.md                                                      | `/`           | P2  | 세 도구 | 증상·영향·롤백 여부                                                                                     | 자체                                         |
+| id                               | 구성                                                                         | 호출          | P   | tools   | 역할                                                                                                    | 원천                                         |
+| -------------------------------- | ---------------------------------------------------------------------------- | ------------- | --- | ------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `brainstorming`                  | 중계 `obra/superpowers`                                                      | 자동 또는 `/` | P0  | 세 도구 | 구현 전 질문·대안·설계 확인                                                                             | Superpowers `brainstorming`                  |
+| `writing-plans`                  | 중계 `obra/superpowers`                                                      | 자동 또는 `/` | P0  | 세 도구 | 작은 태스크·검증 단위로 계획                                                                            | Superpowers `writing-plans`                  |
+| `implement-change`               | SKILL.md                                                                     | 자동          | P0  | 세 도구 | 탐색→최소 변경→검증                                                                                     | 자체. Superpowers `executing-plans` 요지     |
+| `test-driven-development`        | 중계 `obra/superpowers`                                                      | 자동          | P0  | 세 도구 | 실패 테스트→최소 구현→통과                                                                              | Superpowers `test-driven-development`        |
+| `systematic-debugging`           | 중계 `obra/superpowers`                                                      | 자동          | P0  | 세 도구 | 재현→가설→수정→재검증                                                                                   | Superpowers `systematic-debugging`           |
+| `fix-ci`                         | SKILL.md                                                                     | 자동          | P0  | 세 도구 | 실패한 체크만, 로그 근거                                                                                | 자체                                         |
+| `safe-refactor`                  | SKILL.md                                                                     | 자동          | P1  | 세 도구 | 동작 유지 리팩터                                                                                        | 자체                                         |
+| `verification-before-completion` | 중계 `obra/superpowers`                                                      | 자동          | P0  | 세 도구 | 끝내기 전 테스트·동작 확인                                                                              | Superpowers `verification-before-completion` |
+| `requesting-code-review`         | 중계 `obra/superpowers`                                                      | `/`           | P0  | 세 도구 | 버그·회귀·계약 위주 리뷰. 체크리스트는 `reviewer`와 공유                                                | Superpowers `requesting-code-review`         |
+| `receiving-code-review`          | 중계 `obra/superpowers`                                                      | `/`           | P1  | 세 도구 | 리뷰 피드백 반영                                                                                        | Superpowers `receiving-code-review`          |
+| `docs-from-code`                 | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 코드를 정본으로 문서화                                                                                  | 자체                                         |
+| `onboard-repo`                   | SKILL.md                                                                     | `/`           | P1  | 세 도구 | `AGENTS.md` 초안 제안                                                                                   | 자체                                         |
+| `propose-skill`                  | SKILL.md, `references/promotion-criteria.md`                                 | `/`           | P0  | 세 도구 | 규칙이 가리키거나 사용자가 `/`로 열 때만 초안. 파일은 안 씀                                             | 자체                                         |
+| `token-budget`                   | SKILL.md, `scripts/`(집계)                                                   | `/`           | P1  | 세 도구 | 보이는 규칙·스킬·기록의 토큰 비중과 절약 제안. 파일은 안 씀. 숨은 프롬프트·과금 토큰은 대상이 아님      | 자체                                         |
+| `handoff`                        | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 목표·결정·파일·다음 작업·제약만 담은 인수인계. 새 채팅에 붙여 넣음. 원문·폐기한 안은 제외. 파일은 안 씀 | 자체                                         |
+| `blast-radius`                   | SKILL.md                                                                     | `/`           | P0  | 세 도구 | 작은 diff가 깨뜨릴 곳                                                                                   | 커뮤니티(Cursor 마켓 `blast-radius` 역할)    |
+| `resolve-merge-conflicts`        | SKILL.md                                                                     | 자동          | P0  | 세 도구 | 의미 유지하며 충돌 해결. Git 팩 아님                                                                    | 자체                                         |
+| `update-deps`                    | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 의존성 하나씩 올리고 테스트                                                                             | 자체 (Cursor 학습 `/update-deps` 패턴)       |
+| `author-ci`                      | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 이 레포 러너에 워크플로 추가                                                                            | 자체                                         |
+| `flaky-test`                     | SKILL.md                                                                     | 자동          | P1  | 세 도구 | 흔들림 재현·격리                                                                                        | 자체                                         |
+| `reproduce-minimal`              | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 버그를 최소 재현으로                                                                                    | 자체                                         |
+| `explain-codebase`               | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 모듈 지도. `onboard-repo`보다 깊게                                                                      | 자체                                         |
+| `subagent-driven-development`    | 중계 `obra/superpowers`. `requires: general:reviewer, general:writing-plans` | `/`만         | P2  | 세 도구 | 계획 태스크마다 새 구현+리뷰 서브에이전트                                                               | Superpowers `subagent-driven-development`    |
+| `adr`                            | SKILL.md, references(템플릿)                                                 | `/`           | P2  | 세 도구 | 아키텍처 결정 기록                                                                                      | 자체                                         |
+| `incident-lite`                  | SKILL.md                                                                     | `/`           | P2  | 세 도구 | 증상·영향·롤백 여부                                                                                     | 자체                                         |
 
 `/`만인 항목은 Cursor `disable-model-invocation: true`, Codex `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`.
 
@@ -85,13 +85,13 @@ Command 파일 없음.
 
 ## git — Skills
 
-| id                               | 구성     | 호출 | P   | tools   | 역할                                | 원천                                         |
-| -------------------------------- | -------- | ---- | --- | ------- | ----------------------------------- | -------------------------------------------- |
-| `commit-by-theme`                | SKILL.md | `/`  | P0  | 세 도구 | 주제별 커밋                         | 자체                                         |
+| id                               | 구성                    | 호출 | P   | tools   | 역할                                | 원천                                         |
+| -------------------------------- | ----------------------- | ---- | --- | ------- | ----------------------------------- | -------------------------------------------- |
+| `commit-by-theme`                | SKILL.md                | `/`  | P0  | 세 도구 | 주제별 커밋                         | 자체                                         |
 | `finishing-a-development-branch` | 중계 `obra/superpowers` | `/`  | P0  | 세 도구 | 테스트 후 머지/PR/정리              | Superpowers `finishing-a-development-branch` |
-| `git-bisect`                     | SKILL.md | `/`  | P1  | 세 도구 | 회귀 커밋 탐색                      | 자체                                         |
+| `git-bisect`                     | SKILL.md                | `/`  | P1  | 세 도구 | 회귀 커밋 탐색                      | 자체                                         |
 | `using-git-worktrees`            | 중계 `obra/superpowers` | `/`  | P1  | 세 도구 | worktree로 브랜치 격리              | Superpowers `using-git-worktrees`            |
-| `cut-release`                    | SKILL.md | `/`  | P1  | 세 도구 | 버전·changelog·태그. 배포 계정 없음 | 자체                                         |
+| `cut-release`                    | SKILL.md                | `/`  | P1  | 세 도구 | 버전·changelog·태그. 배포 계정 없음 | 자체                                         |
 
 ---
 
@@ -122,18 +122,18 @@ Command 파일 없음.
 
 ## web-ui — Skills
 
-| id                      | 구성                         | 호출 | P   | tools   | 역할                                            | 원천                           |
-| ----------------------- | ---------------------------- | ---- | --- | ------- | ----------------------------------------------- | ------------------------------ |
-| `frontend-design`       | 중계 `anthropics/skills`         | 자동 | P0  | 세 도구 | 웹 UI, 흔한 AI 룩 회피                          | Anthropic `frontend-design`    |
-| `webapp-testing`        | 중계 `anthropics/skills`         | `/`  | P0  | 세 도구 | 로컬 웹 브라우저 검증. Playwright 계열과 하나만 | Anthropic `webapp-testing`     |
+| id                      | 구성                            | 호출 | P   | tools   | 역할                                            | 원천                           |
+| ----------------------- | ------------------------------- | ---- | --- | ------- | ----------------------------------------------- | ------------------------------ |
+| `frontend-design`       | 중계 `anthropics/skills`        | 자동 | P0  | 세 도구 | 웹 UI, 흔한 AI 룩 회피                          | Anthropic `frontend-design`    |
+| `webapp-testing`        | 중계 `anthropics/skills`        | `/`  | P0  | 세 도구 | 로컬 웹 브라우저 검증. Playwright 계열과 하나만 | Anthropic `webapp-testing`     |
 | `web-design-guidelines` | 중계 `vercel-labs/agent-skills` | `/`  | P1  | 세 도구 | 접근성·UX 감사                                  | Vercel `web-design-guidelines` |
 
 ---
 
 ## react — Skills
 
-| id                     | 구성                              | 호출 | P   | tools   | 역할                 | 원천                                                              |
-| ---------------------- | --------------------------------- | ---- | --- | ------- | -------------------- | ----------------------------------------------------------------- |
+| id                     | 구성                                                                   | 호출 | P   | tools   | 역할                 | 원천                                 |
+| ---------------------- | ---------------------------------------------------------------------- | ---- | --- | ------- | -------------------- | ------------------------------------ |
 | `react-best-practices` | 중계 `vercel-labs/agent-skills` (`skill: vercel-react-best-practices`) | 자동 | P0  | 세 도구 | React/Next 성능·패턴 | Vercel `vercel-react-best-practices` |
 
 우리 저장소에 벤더 원문을 복제하지 않는다. 설치기는 공식 설치 힌트를 출력하며, 외부 설치 명령을 자동 실행하지 않는다.
@@ -142,8 +142,8 @@ Command 파일 없음.
 
 ## figma — Skills
 
-| id                     | 구성                        | 호출 | P   | tools   | 역할           | 원천                     |
-| ---------------------- | --------------------------- | ---- | --- | ------- | -------------- | ------------------------ |
+| id                     | 구성                          | 호출 | P   | tools   | 역할           | 원천                     |
+| ---------------------- | ----------------------------- | ---- | --- | ------- | -------------- | ------------------------ |
 | `figma-design-to-code` | 중계 `figma/mcp-server-guide` | `/`  | P0  | 세 도구 | 시안→코드 순서 | Figma `mcp-server-guide` |
 
 MCP·토큰은 사용자가 해당 도구 Customize에서 연결한다.
@@ -180,8 +180,8 @@ MCP·토큰은 사용자가 해당 도구 Customize에서 연결한다.
 
 ## tools — Skills
 
-| id            | 구성                            | 호출 | P   | tools   | 역할               | 원천                    |
-| ------------- | ------------------------------- | ---- | --- | ------- | ------------------ | ----------------------- |
+| id            | 구성                     | 호출 | P   | tools   | 역할               | 원천                    |
+| ------------- | ------------------------ | ---- | --- | ------- | ------------------ | ----------------------- |
 | `mcp-builder` | 중계 `anthropics/skills` | `/`  | P1  | 세 도구 | MCP 서버 설계·구현 | Anthropic `mcp-builder` |
 
 ---
