@@ -1,6 +1,6 @@
 {
     "id": "tools",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "items": [
         {
             "id": "mcp-builder",
@@ -13,7 +13,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "anthropics/skills mcp-builder (relay)",
             "relay": {
                 "source": "https://github.com/anthropics/skills"

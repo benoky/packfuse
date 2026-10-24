@@ -1,12 +1,22 @@
 # Changelog
 
-## Unreleased
-
-The Cursor plugin manifest, its hooks file, and the marketplace installation instructions were removed. Cursor, Claude Code, and Codex all install through the npm CLI.
+## 1.2.0
 
 Official Superpowers, Anthropic, Vercel, and Figma skills install through `npx skills add` instead of Packfuse copies. `implement-change` and other Packfuse-owned items stay local. `uninstall` removes official names that Packfuse recorded as owned, for pack relays and item relays, and leaves skills that were already present. Locks without ownership records still only drop the pack relay from the lock.
 
+A 1.0.0 lock that still names `docs-pdf`, `docs-docx`, `docs-pptx`, or `docs-xlsx` no longer stops `update`. Those ids are removed, and `update` runs the official installer again while `docs` stays selected.
+
 The always-on `git` rule allows commits that a user-approved plan or explicitly invoked skill includes, and still requires an explicit finish request for push, pull requests, tags, and publishes. Force-push, skipped hooks, history rewrites, and unnamed shared-branch pushes stay forbidden without explicit authorization.
+
+The `code-change` rule rejects a dependency, wrapper, or abstraction the user did not ask for.
+
+A first installation of `general` includes `record-project-constraint`. It writes one approved repository-wide constraint into the installed tool's instruction file. `update` refreshes items that are already installed and does not add this skill to an older installation.
+
+There is no per-pack cap on automatic P0 skills.
+
+The Cursor plugin manifest, its hooks file, and the marketplace installation instructions were removed. Cursor, Claude Code, and Codex all install through the npm CLI.
+
+The package, CLI, and pack item versions are 1.2.0.
 
 ## 1.1.1
 

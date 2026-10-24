@@ -1,6 +1,6 @@
 {
     "name": "packfuse",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "description": "Install reusable coding skills and rules for Cursor, Claude Code, and Codex.",
     "type": "module",
     "bin": {

@@ -1,6 +1,6 @@
 {
     "id": "figma",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "items": [
         {
             "id": "figma-design-to-code",
@@ -13,7 +13,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "Figma official (relay)",
             "relay": {
                 "source": "https://github.com/figma/mcp-server-guide"

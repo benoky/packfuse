@@ -6,7 +6,7 @@ const program = new Command();
 program
     .name("packfuse")
     .description("Install reusable coding skills and rules for Cursor, Claude Code, and Codex.")
-    .version("1.1.1");
+    .version("1.2.0");
 
 function scopeFlags(cmd: Command): Command {
     return cmd

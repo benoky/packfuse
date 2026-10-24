@@ -1,6 +1,6 @@
 {
     "id": "git",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "items": [
         {
             "id": "commit-by-theme",
@@ -13,7 +13,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -27,7 +27,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers finishing-a-development-branch (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -44,7 +44,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -58,7 +58,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers using-git-worktrees (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -75,7 +75,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         }
     ]

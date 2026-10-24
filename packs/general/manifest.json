@@ -1,6 +1,6 @@
 {
     "id": "general",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "items": [
         {
             "id": "requirements",
@@ -11,7 +11,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -23,7 +23,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -35,7 +35,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -47,7 +47,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -59,7 +59,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -71,7 +71,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self",
             "requires": [
                 "general:propose-skill"
@@ -88,7 +88,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers brainstorming (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -105,7 +105,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers writing-plans (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -122,7 +122,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -136,7 +136,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers test-driven-development (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -153,7 +153,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers systematic-debugging (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -170,7 +170,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -184,7 +184,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers verification-before-completion (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -201,7 +201,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -215,7 +215,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers requesting-code-review (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -232,7 +232,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -246,7 +246,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -260,7 +260,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -274,7 +274,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers receiving-code-review (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -291,7 +291,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -305,7 +305,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -319,7 +319,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -333,7 +333,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -347,7 +347,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -361,7 +361,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -375,7 +375,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -389,7 +389,7 @@
             ],
             "invoke": "auto",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -403,7 +403,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -417,7 +417,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -434,7 +434,7 @@
                 "general:reviewer",
                 "general:writing-plans"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "obra/superpowers subagent-driven-development (relay)",
             "relay": {
                 "source": "https://github.com/obra/superpowers"
@@ -451,7 +451,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -465,7 +465,7 @@
             ],
             "invoke": "slash",
             "requires": [],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -477,7 +477,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -489,7 +489,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -501,7 +501,7 @@
                 "claude",
                 "codex"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -512,7 +512,7 @@
                 "cursor",
                 "claude"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -523,7 +523,7 @@
                 "cursor",
                 "claude"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         },
         {
@@ -533,7 +533,7 @@
             "tools": [
                 "cursor"
             ],
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": "self"
         }
     ]
