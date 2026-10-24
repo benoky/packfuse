@@ -14,4 +14,4 @@ description: "Use when a concrete, bounded code change is ready to implement. Do
 
 ## Completion
 
-A reviewable change and evidence that the requested behavior works. Commit, push, and PR creation require the user request covered by the Git rule.
+A reviewable change and evidence that the requested behavior works. Commit, push, and PR creation follow the Git rule.
