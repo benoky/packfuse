@@ -79,7 +79,7 @@ Command 파일 없음.
 
 `/`만인 항목은 Cursor `disable-model-invocation: true`, Codex `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`.
 
-자동 P0: `brainstorming`, `writing-plans`, `implement-change`, `test-driven-development`, `systematic-debugging`, `fix-ci`, `verification-before-completion`, `resolve-merge-conflicts` (8개, 상한 8).
+자동 P0: `brainstorming`, `writing-plans`, `implement-change`, `test-driven-development`, `systematic-debugging`, `fix-ci`, `verification-before-completion`, `resolve-merge-conflicts`.
 
 ---
 

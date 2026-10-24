@@ -161,7 +161,7 @@ npm은 **패키지 버전 하나**에 설치기와 카탈로그의 모든 팩을
 | 새 기능·설계가 애매     | `brainstorming` → `writing-plans` → `implement-change`                                             | SDD                              |
 | 독립 태스크가 많은 계획 | `/subagent-driven-development`                                                                     | 메인에서 전부 구현               |
 
-P0 자동 스킬은 팩당 8개 이하. description은 무엇을/언제/언제 아닌지만, 500자 이하(Codex 한도).
+description은 무엇을/언제/언제 아닌지만, 500자 이하(Codex 한도).
 
 ### 이름
 
@@ -196,7 +196,7 @@ packs/general/rules/git.md    # 정본. 짧은 문장만
 ### 검증 (CI)
 
 - 스킬 `name`과 폴더명 일치, 전 팩에서 유일
-- description 500자 이하, 자동 P0 팩당 8개 이하
+- description 500자 이하
 - manifest 스키마, `requires` 대상 존재, 순환 없음
 - 도구별 설치 결과 스냅샷(`cursor`/`claude`/`codex` 각각 설치 후 파일 목록 비교)
 

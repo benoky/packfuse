@@ -17,13 +17,11 @@ export function validateCatalog(): string[] {
     const all = allItems();
     resolveRequires(all, all);
     const names = new Set<string>();
-    const automatic = new Map<string, number>();
     for (const sel of all) {
         const { item, pack } = sel;
         if (item.relay) {
-            if (item.kind !== "skill") errors.push(`Relay is only valid on skills: ${pack}:${item.id}`);
-            if (item.invoke === "auto" && item.priority === "p0")
-                automatic.set(pack, (automatic.get(pack) ?? 0) + 1);
+            if (item.kind !== "skill")
+                errors.push(`Relay is only valid on skills: ${pack}:${item.id}`);
             continue;
         }
         const file =
@@ -51,8 +49,6 @@ export function validateCatalog(): string[] {
         if (data.name !== item.id || names.has(item.id))
             errors.push(`Invalid or duplicate name: ${file}`);
         names.add(item.id);
-        if (item.invoke === "auto" && item.priority === "p0")
-            automatic.set(pack, (automatic.get(pack) ?? 0) + 1);
         for (const match of readFileSync(file, "utf8").matchAll(
             /\]\(((?:references|scripts)\/[^)#]+)(?:#[^)]*)?\)/g,
         )) {
@@ -60,8 +56,6 @@ export function validateCatalog(): string[] {
                 errors.push(`Broken local reference: ${file} -> ${match[1]}`);
         }
     }
-    for (const [pack, count] of automatic)
-        if (count > 8) errors.push(`${pack}: ${count} automatic P0 skills (max 8)`);
     return errors;
 }
 
