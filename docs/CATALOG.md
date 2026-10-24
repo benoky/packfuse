@@ -63,6 +63,7 @@ Command 파일 없음.
 | `receiving-code-review`          | 중계 `obra/superpowers`                                                      | `/`           | P1  | 세 도구 | 리뷰 피드백 반영                                                                                        | Superpowers `receiving-code-review`          |
 | `docs-from-code`                 | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 코드를 정본으로 문서화                                                                                  | 자체                                         |
 | `onboard-repo`                   | SKILL.md                                                                     | `/`           | P1  | 세 도구 | `AGENTS.md` 초안 제안                                                                                   | 자체                                         |
+| `record-project-constraint`      | SKILL.md                                                                     | 자동          | P0  | 세 도구 | 프로젝트 전체 코드 제약을 지적받으면 한 줄만 제안. 승낙 후 설치한 도구의 에이전트 파일에만 반영         | 자체                                         |
 | `propose-skill`                  | SKILL.md, `references/promotion-criteria.md`                                 | `/`           | P0  | 세 도구 | 규칙이 가리키거나 사용자가 `/`로 열 때만 초안. 파일은 안 씀                                             | 자체                                         |
 | `token-budget`                   | SKILL.md, `scripts/`(집계)                                                   | `/`           | P1  | 세 도구 | 보이는 규칙·스킬·기록의 토큰 비중과 절약 제안. 파일은 안 씀. 숨은 프롬프트·과금 토큰은 대상이 아님      | 자체                                         |
 | `handoff`                        | SKILL.md                                                                     | `/`           | P1  | 세 도구 | 목표·결정·파일·다음 작업·제약만 담은 인수인계. 새 채팅에 붙여 넣음. 원문·폐기한 안은 제외. 파일은 안 씀 | 자체                                         |
@@ -79,7 +80,7 @@ Command 파일 없음.
 
 `/`만인 항목은 Cursor `disable-model-invocation: true`, Codex `agents/openai.yaml`의 `policy.allow_implicit_invocation: false`.
 
-자동 P0: `brainstorming`, `writing-plans`, `implement-change`, `test-driven-development`, `systematic-debugging`, `fix-ci`, `verification-before-completion`, `resolve-merge-conflicts`.
+자동 P0: `brainstorming`, `writing-plans`, `implement-change`, `test-driven-development`, `systematic-debugging`, `fix-ci`, `verification-before-completion`, `resolve-merge-conflicts`, `record-project-constraint`.
 
 ---
 

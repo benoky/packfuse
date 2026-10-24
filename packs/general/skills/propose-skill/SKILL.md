@@ -1,6 +1,6 @@
 ---
 name: propose-skill
-description: "Use when the user asks for a reusable skill or rule draft. Do not use for automatic background monitoring, one-off tasks, or unsolicited drafting during implementation."
+description: "Use when the user asks for a reusable skill or rule draft. Do not use for automatic background monitoring, one-off tasks, unsolicited drafting during implementation, or recording a project constraint in existing agent files (record-project-constraint)."
 ---
 
 # Propose skill

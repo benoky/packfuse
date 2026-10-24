@@ -309,6 +309,20 @@
             "source": "self"
         },
         {
+            "id": "record-project-constraint",
+            "kind": "skill",
+            "priority": "p0",
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
+            "invoke": "auto",
+            "requires": [],
+            "version": "1.1.1",
+            "source": "self"
+        },
+        {
             "id": "token-budget",
             "kind": "skill",
             "priority": "p1",

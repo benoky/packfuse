@@ -100,7 +100,7 @@ Text:
 ```text
 I made Packfuse, an npm CLI that installs a selected set of coding skills and rules into Cursor, Claude Code, or Codex.
 
-The first install writes four rules and eleven skills (planning, debugging, review, verification). It does not install every pack. Agents and hooks are optional and are not in that default set. Cursor also has a plugin listing. Claude Code and Codex use the npm command.
+The first install writes four rules and twelve skills (planning, debugging, review, verification, project constraints). It does not install every pack. Agents and hooks are optional and are not in that default set. Cursor also has a plugin listing. Claude Code and Codex use the npm command.
 
     npx packfuse@latest install --project --tool cursor --dry-run
 
@@ -152,7 +152,7 @@ npx packfuse@latest install --project --tool cursor
 Claude Code:
 npx packfuse@latest install --project --tool claude
 
-The default set is four rules and eleven skills. It includes systematic-debugging and requesting-code-review. It does not install agents, hooks, or every pack. --dry-run prints the files it would write.
+The default set is four rules and twelve skills. It includes systematic-debugging, requesting-code-review, and record-project-constraint. It does not install agents, hooks, or every pack. --dry-run prints the files it would write.
 
 Repo: https://github.com/benoky/packfuse
 ```
@@ -164,7 +164,7 @@ Packfuse는 Cursor, Claude Code, Codex에 코딩 스킬과 규칙을 넣는 CLI�
 
 npx packfuse@latest install --project --tool cursor
 
-처음 설치는 general P0(규칙 4개, 스킬 11개)입니다. 모든 팩을 한 번에 설치하지 않습니다. 에이전트와 훅은 기본 설치에 없습니다. --dry-run으로 쓰기 전에 목록을 볼 수 있습니다.
+처음 설치는 general P0(규칙 4개, 스킬 12개)입니다. 모든 팩을 한 번에 설치하지 않습니다. 에이전트와 훅은 기본 설치에 없습니다. --dry-run으로 쓰기 전에 목록을 볼 수 있습니다.
 
 https://github.com/benoky/packfuse
 ```

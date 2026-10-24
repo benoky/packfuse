@@ -30,6 +30,7 @@
 | 설치 전 토큰 견적        | `--dry-run`, tiktoken `cl100k_base`, 도구별 추정                                      |
 | 자체 개발 루프 스킬      | `fix-ci`, `blast-radius`, `resolve-merge-conflicts`, `propose-skill`                  |
 | 토큰 예산                | `/token-budget`, `/handoff` (P1, 기본 설치 아님)                                      |
+| 프로젝트 제약 기록       | `record-project-constraint` (P0, 승낙 후 설치한 도구의 에이전트 파일에만 반영)        |
 
 차용 스킬(Superpowers 등)은 “같이 쓰기 좋게 묶음”으로만 소개한다. 원조처럼 내세우지 않는다. 이미 설치돼 있으면 건너뛴다(3.1).
 

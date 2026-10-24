@@ -61,7 +61,7 @@ npx packfuse@latest install --project --tool claude
 npx packfuse@latest install --project --tool codex
 ```
 
-On a first installation, each command adds the `general` P0 set: **four rules and eleven skills**. It includes planning, implementation, debugging, CI fixes, merge-conflict resolution, code review, and verification. Open the configured project in your tool and start a new session to use the installed skills.
+On a first installation, each command adds the `general` P0 set: **four rules and twelve skills**. It includes planning, implementation, debugging, CI fixes, merge-conflict resolution, code review, verification, and recording a repository-wide constraint. Open the configured project in your tool and start a new session to use the installed skills.
 
 To see the planned installation before writing files, add `--dry-run`:
 
@@ -226,6 +226,7 @@ A priority is an install boundary, not a quality ranking. P0 is the default set 
 | P0       | Skill | `fix-ci`                         | Fix a failing CI job without weakening the check.                                                                         |
 | P0       | Skill | `verification-before-completion` | Gather evidence before calling the change done.                                                                           |
 | P0       | Skill | `resolve-merge-conflicts`        | Keep both intended behaviors while resolving a conflict.                                                                  |
+| P0       | Skill | `record-project-constraint`      | Propose one line for a repository-wide constraint you corrected; write it to the agent files only after you approve.      |
 | P0       | Skill | `requesting-code-review`         | Review a diff for defects. Invoked explicitly.                                                                            |
 | P0       | Skill | `propose-skill`                  | Draft a skill or rule when asked. Invoked explicitly.                                                                     |
 | P0       | Skill | `blast-radius`                   | Trace the impact of a diff. Invoked explicitly.                                                                           |
@@ -405,7 +406,7 @@ npx packfuse@latest install --project --tool claude
 npx packfuse@latest install --project --tool codex
 ```
 
-처음 설치하면 `general` P0인 **규칙 4개와 스킬 11개**가 들어갑니다. 계획, 구현, 디버깅, CI 오류 수정, 병합 충돌 해결, 코드 리뷰, 검증을 위한 항목입니다. 설치한 프로젝트를 코딩 도구에서 열고 새 세션을 시작하세요.
+처음 설치하면 `general` P0인 **규칙 4개와 스킬 12개**가 들어갑니다. 계획, 구현, 디버깅, CI 오류 수정, 병합 충돌 해결, 코드 리뷰, 검증, 저장소 전체 제약 기록을 위한 항목입니다. 설치한 프로젝트를 코딩 도구에서 열고 새 세션을 시작하세요.
 
 파일을 쓰기 전에 설치 내용을 확인하려면 `--dry-run`을 붙입니다.
 
@@ -569,6 +570,7 @@ npx packfuse@latest install --project --tool codex --pack general --item handoff
 | P0       | 스킬     | `fix-ci`                         | 실패한 CI를 고치고, 검사를 약하게 만들어 통과시키지 않습니다.                                                    |
 | P0       | 스킬     | `verification-before-completion` | 완료라고 하기 전에 증거를 확인합니다.                                                                            |
 | P0       | 스킬     | `resolve-merge-conflicts`        | 충돌을 풀 때 양쪽이 의도한 동작을 남깁니다.                                                                      |
+| P0       | 스킬     | `record-project-constraint`      | 저장소 전체에 적용할 제약을 고치면 한 줄을 제안하고, 승인한 뒤에만 에이전트 파일에 남깁니다.                     |
 | P0       | 스킬     | `requesting-code-review`         | diff의 결함을 리뷰합니다. 직접 호출합니다.                                                                       |
 | P0       | 스킬     | `propose-skill`                  | 요청이 있을 때 스킬이나 규칙 초안을 만듭니다. 직접 호출합니다.                                                   |
 | P0       | 스킬     | `blast-radius`                   | 변경의 영향 범위를 추적합니다. 직접 호출합니다.                                                                  |

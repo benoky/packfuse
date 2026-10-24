@@ -1,6 +1,6 @@
 ---
 name: onboard-repo
-description: "Use when the user requests repository-specific agent onboarding instructions. Do not use for a deep module tour or copying general safety rules into every project."
+description: "Use when the user requests repository-specific agent onboarding instructions. Do not use for a deep module tour, copying general safety rules into every project, or recording one corrected pattern (record-project-constraint)."
 ---
 
 # Onboard a repository
