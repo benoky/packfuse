@@ -32,7 +32,7 @@ npx packfuse@latest install --project --tool cursor --dry-run
 A local build of 1.1.1, run as `node dist/cli.js install --project --tool cursor --dry-run` in an empty temp directory, printed:
 
 ```text
-cursor: estimated selected always-on tokens≈404 (character approximation, not a model tokenizer; descriptions + unconditional rules; excludes host prompts)
+cursor: estimated selected always-on tokens≈471 (character approximation, not a model tokenizer; descriptions + unconditional rules; excludes host prompts)
 dry-run: no files changed
   write <temp>/.cursor/rules/safety.mdc
   write <temp>/.cursor/rules/verification.mdc
