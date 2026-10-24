@@ -75,7 +75,7 @@ node dist/cli.js doctor --project --tool codex
 
 ## 공식 스킬 중계
 
-공식 GitHub 스킬은 로컬 `SKILL.md` 없이 `item.relay` 또는 팩 `relay`로 `npx skills add`를 실행한다. Cursor 플러그인 번들에는 중계 항목이 들어가지 않는다. 설치 전부터 있던 동명 공식 스킬은 소유로 기록하지 않고 보존한다.
+공식 GitHub 스킬은 로컬 `SKILL.md` 없이 `item.relay` 또는 팩 `relay`로 `npx skills add`를 실행한다. 설치 전부터 있던 동명 공식 스킬은 소유로 기록하지 않고 보존한다.
 
 `docs`는 팩 단위 중계다. `--pack docs`일 때 Anthropic `pdf`, `docx`, `pptx`, `xlsx`를 설치한다. 해당 중계가 잠금에 없을 때의 `update`는 이 명령을 실행하지 않는다. `--dry-run`은 명령만 출력한다. `uninstall`은 기록한 소유 이름만 `skills remove`로 지우며, `skills remove --all`은 쓰지 않는다.
 

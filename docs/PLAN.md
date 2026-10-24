@@ -72,8 +72,6 @@ packs/
 templates/
 ```
 
-플러그인 하나 = 팩 하나. 그전에는 쓸 팩만 복사·링크.
-
 ## 3.1 설치 모델 (도구 × 위치 × 팩 × 항목)
 
 사용자는 다음을 고른다.
@@ -303,7 +301,7 @@ P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `usin
 ## 8. 공개·확산
 
 - README: 최상단 언어별 목차, 영어 본문, 한국어 본문. `npx packfuse`. 팩 목록 전부. 중계는 카탈로그에 표시.
-- 배포: npm `packfuse` 한 버전(설치기+전 팩). GitHub 릴리스. Cursor·Claude 플러그인 마켓도 이 출시에 등록한다.
+- 배포: npm `packfuse` 한 버전(설치기+전 팩). GitHub 릴리스.
 - 노출: `awesome-cursor`·`awesome-claude-code`류 목록, Cursor 포럼, 각 도구 커뮤니티에 eval 결과와 함께 소개.
 - 기여: `CONTRIBUTING.md`, 이슈 템플릿(스킬 제안 / 설치 버그).
 - 버전: 제품 semver 하나. `CHANGELOG.md`. 도구 형식이 바뀌면 해당 변환기만 고친다.
@@ -316,7 +314,7 @@ P0: `commit-by-theme`, `finishing-a-development-branch`. P1: `git-bisect`, `usin
 2. `general` 전부(P0·P1·P2 규칙·스킬·에이전트·훅). `LICENSE`, `THIRD_PARTY_NOTICES.md`, 검증 CI.
 3. `git`, `api`, `web-ui`, `security`, `local-runtime`, `tools`.
 4. `react`, `figma` 등 공식 원문 항목은 `item.relay`로 중계한다. 라이선스 확인 후 `THIRD_PARTY_NOTICES.md`에 적는다.
-5. eval, README, `CONTRIBUTING.md`, npm 배포, 플러그인 마켓.
+5. eval, README, `CONTRIBUTING.md`, npm 배포.
 
 ## 10. 유지 비용
 

@@ -100,7 +100,7 @@ Text:
 ```text
 I made Packfuse, an npm CLI that installs a selected set of coding skills and rules into Cursor, Claude Code, or Codex.
 
-The first install writes four rules and twelve skills (planning, debugging, review, verification, project constraints). It does not install every pack. Agents and hooks are optional and are not in that default set. Cursor also has a plugin listing. Claude Code and Codex use the npm command.
+The first install writes four rules and twelve skills (planning, debugging, review, verification, project constraints). It does not install every pack. Agents and hooks are optional and are not in that default set.
 
     npx packfuse@latest install --project --tool cursor --dry-run
 
@@ -123,7 +123,7 @@ The same command accepts --tool claude or --tool codex. --home installs for the 
 ### Cursor forum
 
 - URL: https://forum.cursor.com/c/showcase/9
-- Fit: Cursor plugins and workflows. Marketplace submission itself stays at https://cursor.com/marketplace/publish and is separate from a forum post.
+- Fit: Cursor users and workflows.
 - Priority: medium.
 
 ### OpenAI developer community
@@ -174,5 +174,4 @@ https://github.com/benoky/packfuse
 - npm keywords now name the three tools. Whether that changes search ranking was not measured.
 - An official docs page or another tool's catalog would be a better referral than adding Packfuse as a dependency of unrelated packages.
 - A starter kit should document the install command. It should not vendor the skill files.
-- Cursor marketplace publication is still a manual submission at https://cursor.com/marketplace/publish. This pass does not submit it.
 - `dist/` is gitignored. `prepack` runs the TypeScript build so `npm pack` and `npm publish` include `dist/cli.js`.
