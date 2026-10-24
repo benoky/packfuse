@@ -20,6 +20,12 @@ export function validateCatalog(): string[] {
     const automatic = new Map<string, number>();
     for (const sel of all) {
         const { item, pack } = sel;
+        if (item.relay) {
+            if (item.kind !== "skill") errors.push(`Relay is only valid on skills: ${pack}:${item.id}`);
+            if (item.invoke === "auto" && item.priority === "p0")
+                automatic.set(pack, (automatic.get(pack) ?? 0) + 1);
+            continue;
+        }
         const file =
             item.kind === "skill"
                 ? path.join(skillDir(sel), "SKILL.md")
@@ -137,6 +143,7 @@ export function validateCursorPlugin(): string[] {
     for (const sel of allItems()) {
         if (
             sel.item.kind === "skill" &&
+            !sel.item.relay &&
             !skillRoots.has(path.resolve(path.dirname(skillDir(sel))))
         ) {
             errors.push(`Cursor plugin omits skill ${sel.pack}:${sel.item.id}`);

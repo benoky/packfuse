@@ -18,7 +18,8 @@ const logoName = "logo.png";
 
 export function codexSkills(): SelectedItem[] {
     return allItems().filter(
-        (sel) => sel.item.kind === "skill" && sel.item.tools.includes("codex"),
+        (sel) =>
+            sel.item.kind === "skill" && sel.item.tools.includes("codex") && !sel.item.relay,
     );
 }
 
@@ -90,7 +91,7 @@ function pluginManifest(): Record<string, unknown> {
                     logo: "./assets/logo.png",
                     composerIcon: "./assets/logo.png",
                 },
-                onboardingSkill: "./skills/brainstorming/SKILL.md",
+                    onboardingSkill: "./skills/implement-change/SKILL.md",
             },
         },
     };

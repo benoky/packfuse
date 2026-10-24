@@ -13,13 +13,9 @@
     "skills": [
         "./packs/general/skills",
         "./packs/git/skills",
-        "./packs/web-ui/skills",
-        "./packs/react/skills",
-        "./packs/figma/skills",
         "./packs/api/skills",
         "./packs/local-runtime/skills",
-        "./packs/security/skills",
-        "./packs/tools/skills"
+        "./packs/security/skills"
     ],
     "rules": "./packs/general/rules",
     "agents": "./packs/general/agents",

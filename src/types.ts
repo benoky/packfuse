@@ -3,6 +3,11 @@ export type Priority = "p0" | "p1" | "p2";
 export type Invoke = "auto" | "slash";
 export type Tool = "cursor" | "claude" | "codex";
 
+export interface ItemRelay {
+  source: string;
+  skill?: string;
+}
+
 export interface ManifestItem {
   id: string;
   kind: Kind;
@@ -13,6 +18,7 @@ export interface ManifestItem {
   version: string;
   source: string;
   vendor?: string;
+  relay?: ItemRelay;
 }
 
 export interface PackRelay {
@@ -42,6 +48,8 @@ export interface LockFile {
   items: LockItem[];
   /** Packs installed by an external installer. `update` runs that installer again. */
   relays?: string[];
+  /** Official skill names Packfuse installed, per relay pack and tool. Missing entries are not owned. */
+  relayOwned?: Record<string, Partial<Record<Tool, string[]>>>;
 }
 
 export interface Installation {

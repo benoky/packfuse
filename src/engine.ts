@@ -4,7 +4,7 @@ import path from "node:path";
 import readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import YAML from "yaml";
-import type { Installation, PackRelay, SelectedItem, StateFile, Tool } from "./types.js";
+import type { Installation, LockFile, PackRelay, SelectedItem, StateFile, Tool } from "./types.js";
 import {
     detectMarkers,
     homeDir,
@@ -21,6 +21,7 @@ import {
     listSkillNamesOnDisk,
     loadIndex,
     loadPack,
+    officialSkillName,
     resolveRequires,
     skillDir,
 } from "./manifest.js";
@@ -72,12 +73,71 @@ function retiredDocsNotice(key: string): void {
         `skip ${key} (removed from the catalog; updating the official pdf, docx, pptx, and xlsx skills)`,
     );
 }
-function rememberRelay(lock: ReturnType<typeof readLock>, pack: string): boolean {
+function rememberRelay(lock: LockFile, pack: string): boolean {
     if (!loadPack(pack).relay) return false;
     lock.relays ??= [];
     if (lock.relays.includes(pack)) return false;
     lock.relays.push(pack);
     return true;
+}
+function relayOwnedTools(lock: LockFile): Tool[] {
+    const found = new Set<Tool>();
+    for (const byTool of Object.values(lock.relayOwned ?? {})) {
+        for (const tool of Object.keys(byTool) as Tool[]) found.add(tool);
+    }
+    return toolNames.filter((tool) => found.has(tool));
+}
+function claimRelayOwnership(
+    lock: LockFile,
+    pack: string,
+    tool: Tool,
+    relay: PackRelay,
+    existingBefore: string[],
+): boolean {
+    const prev = lock.relayOwned?.[pack]?.[tool];
+    const migrating = (lock.relays ?? []).includes(pack) && lock.relayOwned === undefined;
+    const owned = migrating
+        ? [...relay.skills]
+        : relay.skills.filter(
+              (skill) => (prev ?? []).includes(skill) || !existingBefore.includes(skill),
+          );
+    const same =
+        prev !== undefined &&
+        prev.length === owned.length &&
+        prev.every((skill, i) => skill === owned[i]);
+    lock.relayOwned ??= {};
+    lock.relayOwned[pack] ??= {};
+    lock.relayOwned[pack][tool] = owned;
+    const added = rememberRelay(lock, pack);
+    if (same && !added) return false;
+    const skipped = relay.skills.filter((skill) => !owned.includes(skill));
+    if (owned.length)
+        console.log(`relay ${pack} -> ${tool}: owned official skills ${owned.join(", ")}`);
+    if (skipped.length)
+        console.log(
+            `relay ${pack} -> ${tool}: preserved existing official skills ${skipped.join(", ")}`,
+        );
+    return true;
+}
+function forgetRelaySkills(lock: LockFile, pack: string, tool: Tool, names: string[]): boolean {
+    const owned = lock.relayOwned?.[pack]?.[tool];
+    if (!owned?.length) return false;
+    const next = owned.filter((skill) => !names.includes(skill));
+    if (next.length === owned.length) return false;
+    if (next.length) lock.relayOwned![pack]![tool] = next;
+    else forgetRelayTool(lock, pack, tool);
+    return true;
+}
+function forgetRelayTool(lock: LockFile, pack: string, tool: Tool): void {
+    if (lock.relayOwned?.[pack]) {
+        delete lock.relayOwned[pack][tool];
+        if (!Object.keys(lock.relayOwned[pack]).length) delete lock.relayOwned[pack];
+        if (!Object.keys(lock.relayOwned).length) delete lock.relayOwned;
+    }
+    if (!lock.relayOwned?.[pack] && lock.relays) {
+        lock.relays = lock.relays.filter((id) => id !== pack);
+        if (!lock.relays.length) delete lock.relays;
+    }
 }
 const keyOf = (s: SelectedItem) => `${s.pack}:${s.item.id}`;
 const tty = () => Boolean(input.isTTY && output.isTTY);
@@ -230,7 +290,13 @@ function migrate(state: StateFile, scope: Scope, cwd?: string): void {
             if (sel.item.kind === "skill") {
                 const dir = path.join(p.skills, id);
                 const marker = path.join(dir, ".packfuse");
-                if (existsSync(marker) && readFileSync(marker, "utf8").trim() === key) {
+                if (sel.item.relay) {
+                    if (existsSync(marker) && readFileSync(marker, "utf8").trim() === key) {
+                        r.files = [path.join(dir, "SKILL.md"), marker].filter((file) =>
+                            existsSync(file),
+                        );
+                    }
+                } else if (existsSync(marker) && readFileSync(marker, "utf8").trim() === key) {
                     // Legacy state did not track extras: claim only known source files, preserving user extras.
                     r.files = [
                         path.join(dir, "SKILL.md"),
@@ -397,6 +463,7 @@ async function applyInstall(opts: CommonOpts, updating: boolean): Promise<void> 
     const tx = new FileTransaction();
     const requested = updating ? [] : selected(scope, opts);
     let changed = false;
+    const pendingRelays: { pack: string; source: string; skill: string; tool: Tool }[] = [];
     for (const tool of tools) {
         const entry = state[tool] ?? { paths: [], items: [], installations: {} };
         entry.installations ??= {};
@@ -433,8 +500,43 @@ async function applyInstall(opts: CommonOpts, updating: boolean): Promise<void> 
             }
             const old = entry.installations[key];
             if (old) assertOwnedPaths(old, sel, tool, scope, opts.cwd);
-            if (updating && old?.version === sel.item.version && !old.external) continue;
             const p = toolPaths(tool, scope, opts.cwd);
+            if (sel.item.relay) {
+                const official = officialSkillName(sel.item);
+                const r: Installation = { version: sel.item.version, files: [] };
+                for (const file of old?.files ?? []) tx.remove(file);
+                const officialDir = path.join(p.skills, official);
+                if (
+                    existsSync(path.join(officialDir, "SKILL.md")) &&
+                    !(lock.relayOwned?.[sel.pack]?.[tool] ?? []).includes(official)
+                ) {
+                    r.external = true;
+                    console.log(`skip ${key} (external skill; not owned by packfuse)`);
+                } else {
+                    pendingRelays.push({
+                        pack: sel.pack,
+                        source: sel.item.relay.source,
+                        skill: official,
+                        tool,
+                    });
+                }
+                if (old?.blockFile)
+                    tx.write(
+                        old.blockFile,
+                        removeMarked(tx.read(old.blockFile), sel.pack, sel.item.id),
+                    );
+                if (old?.hook) editHook(tx, old.hook, tool, sel.item.id, false);
+                const same =
+                    old &&
+                    old.version === r.version &&
+                    Boolean(old.external) === Boolean(r.external) &&
+                    !old.files.length;
+                entry.installations[key] = r;
+                addLockItem(lock, sel.pack, sel.item.id, sel.item.version, sel.item.priority);
+                if (!same) changed = true;
+                continue;
+            }
+            if (updating && old?.version === sel.item.version && !old.external) continue;
             const r: Installation = { version: sel.item.version, files: [] };
             const writeOwned = (f: string, body: string | Buffer) => {
                 if (existsSync(f) && !old?.files.includes(f))
@@ -539,8 +641,37 @@ async function applyInstall(opts: CommonOpts, updating: boolean): Promise<void> 
     if (updating) {
         for (const id of lock.relays ?? []) if (loadPack(id).relay) relayIds.add(id);
     } else if (opts.pack && loadPack(opts.pack).relay) {
-        if (rememberRelay(lock, opts.pack)) changed = true;
         relayIds.add(opts.pack);
+    }
+    for (const id of relayIds) {
+        const relay = loadPack(id).relay;
+        if (!relay) continue;
+        for (const tool of tools) {
+            for (const skill of relay.skills)
+                pendingRelays.push({ pack: id, source: relay.source, skill, tool });
+        }
+    }
+    const relayRuns: { pack: string; relay: PackRelay; tool: Tool }[] = [];
+    for (const tool of tools) {
+        const existing = listSkillNamesOnDisk(toolPaths(tool, scope, opts.cwd).skills);
+        const packs = new Set(pendingRelays.filter((job) => job.tool === tool).map((job) => job.pack));
+        for (const pack of packs) {
+            const jobs = pendingRelays.filter((job) => job.tool === tool && job.pack === pack);
+            const bySource = new Map<string, string[]>();
+            for (const job of jobs) {
+                const skills = bySource.get(job.source) ?? [];
+                if (!skills.includes(job.skill)) skills.push(job.skill);
+                bySource.set(job.source, skills);
+            }
+            for (const [source, skills] of bySource) {
+                const relay = { source, skills };
+                if (claimRelayOwnership(lock, pack, tool, relay, existing)) changed = true;
+                const owned = lock.relayOwned?.[pack]?.[tool]?.filter((skill) =>
+                    skills.includes(skill),
+                );
+                if (owned?.length) relayRuns.push({ pack, relay: { source, skills: owned }, tool });
+            }
+        }
     }
     if (changed || lock.items.length !== readLock(scope, opts.cwd).items.length) changed = true;
     if (changed) persist(tx, state, scope, opts, lock);
@@ -558,7 +689,8 @@ async function applyInstall(opts: CommonOpts, updating: boolean): Promise<void> 
                 }
             }
     }
-    for (const id of relayIds) runRelay(loadPack(id).relay, tools, scope, { ...opts, pack: id });
+    for (const run of relayRuns)
+        runRelay(run.relay, [run.tool], scope, { ...opts, pack: run.pack });
     report(tx, Boolean(opts.dryRun));
 }
 const relayAgent: Record<Tool, string> = {
@@ -577,6 +709,21 @@ export function relayArgv(relay: PackRelay, tool: Tool, scope: Scope): string[] 
         relayAgent[tool],
         ...(scope === "home" ? ["-g"] : []),
         ...relay.skills.flatMap((skill) => ["--skill", skill]),
+    ];
+}
+export function relayRemoveArgv(skills: string[], tool: Tool, scope: Scope): string[] {
+    if (!skills.length) throw new Error("relay remove requires owned skill names");
+    if (skills.some((skill) => !/^[a-z0-9-]+$/.test(skill)))
+        throw new Error("Invalid official skill name");
+    return [
+        "--yes",
+        "skills",
+        "remove",
+        ...skills,
+        "-y",
+        "-a",
+        relayAgent[tool],
+        ...(scope === "home" ? ["-g"] : []),
     ];
 }
 function defaultRelayRunner(args: string[], cwd: string): void {
@@ -601,7 +748,7 @@ function runRelay(
         const args = relayArgv(relay, tool, scope);
         console.log(`relay ${opts.pack} -> ${tool}: npx ${args.join(" ")}`);
         console.log(
-            `Official skills (${relay.skills.join(", ")}) are installed by the skills CLI. packfuse does not copy them, and uninstall does not remove them.`,
+            `Official skills (${relay.skills.join(", ")}) are installed by the skills CLI. packfuse does not copy them. uninstall removes names it recorded as owned.`,
         );
         if (opts.dryRun) console.log("dry-run: relay not executed");
         else (opts.relayRunner ?? defaultRelayRunner)(args, cwd);
@@ -613,34 +760,56 @@ export async function install(opts: CommonOpts): Promise<void> {
 export async function update(opts: CommonOpts): Promise<void> {
     await applyInstall(opts, true);
 }
+function uninstallRelayPack(
+    lock: LockFile,
+    pack: string,
+    tools: Tool[],
+    scope: Scope,
+    opts: CommonOpts,
+): boolean {
+    const relay = loadPack(pack).relay;
+    if (!relay) return false;
+    const recorded = (lock.relays ?? []).includes(pack) || Boolean(lock.relayOwned?.[pack]);
+    if (!recorded) {
+        console.log(`relay ${pack} is not installed in this scope`);
+        return false;
+    }
+    const cwd = scope === "home" ? homeDir() : projectDir(opts.cwd);
+    let changed = false;
+    for (const tool of tools) {
+        const owned = lock.relayOwned?.[pack]?.[tool] ?? [];
+        if (owned.length) {
+            const args = relayRemoveArgv(owned, tool, scope);
+            console.log(`relay remove ${pack} -> ${tool}: npx ${args.join(" ")}`);
+            if (opts.dryRun) console.log("dry-run: relay not executed");
+            else (opts.relayRunner ?? defaultRelayRunner)(args, cwd);
+        } else if ((lock.relays ?? []).includes(pack) && lock.relayOwned === undefined) {
+            console.log(
+                `relay ${pack} on ${tool}: no ownership record; not removing official skills`,
+            );
+        }
+        forgetRelayTool(lock, pack, tool);
+        changed = true;
+    }
+    return changed;
+}
 export async function uninstall(opts: CommonOpts): Promise<void> {
     const scope = await resolveScope(opts);
     if (!opts.tool && !opts.all) throw new Error("uninstall requires --tool or --all");
-    if (opts.pack) {
-        const manifest = loadPack(opts.pack);
-        if (!allItems().some((s) => s.pack === opts.pack)) {
-            if (!manifest.relay) throw new Error(`Unknown pack ${opts.pack}`);
-            console.log(
-                `packfuse does not remove official skills for ${opts.pack} (${manifest.relay.skills.join(", ")}).`,
-            );
-            const saved = readLock(scope, opts.cwd);
-            if (saved.relays?.includes(opts.pack)) {
-                saved.relays = saved.relays.filter((id) => id !== opts.pack);
-                if (!saved.relays.length) delete saved.relays;
-                const tx = new FileTransaction();
-                persist(tx, readState(scope, opts.cwd), scope, opts, saved);
-                if (!opts.dryRun) tx.commit();
-            }
-            return;
-        }
-    }
+    if (opts.pack && !allItems().some((s) => s.pack === opts.pack) && !loadPack(opts.pack).relay)
+        throw new Error(`Unknown pack ${opts.pack}`);
     if (opts.item) findItem(opts.pack!, opts.item);
     const state = readState(scope, opts.cwd);
     migrate(state, scope, opts.cwd);
-    const tools = opts.all ? (Object.keys(state) as Tool[]) : resolveTools(scope, opts);
     const lock = readLock(scope, opts.cwd);
+    const tools = opts.all
+        ? toolNames.filter(
+              (tool) => Object.keys(state).includes(tool) || relayOwnedTools(lock).includes(tool),
+          )
+        : resolveTools(scope, opts);
     const tx = new FileTransaction();
     const removed = new Set<string>();
+    const relayRemovals: { pack: string; tool: Tool; skill: string }[] = [];
     for (const tool of tools) {
         const entry = state[tool];
         if (!entry) continue;
@@ -672,6 +841,12 @@ export async function uninstall(opts: CommonOpts): Promise<void> {
             const r = entry.installations![key];
             assertOwnedPaths(r, sel, tool, scope, opts.cwd);
             removeRecord(tx, r, sel, tool);
+            if (sel.item.relay && !r.external)
+                relayRemovals.push({
+                    pack,
+                    tool,
+                    skill: officialSkillName(sel.item),
+                });
             if (r.external) console.log(`preserved external skill ${key}`);
             if (r.manual) console.log(`Remove ${key} from Cursor User Rules manually if pasted.`);
             delete entry.installations![key];
@@ -683,7 +858,56 @@ export async function uninstall(opts: CommonOpts): Promise<void> {
     lock.items = lock.items.filter(
         (i) => !removed.has(`${i.pack}:${i.id}`) || itemStillInstalled(state, `${i.pack}:${i.id}`),
     );
-    if (removed.size) persist(tx, state, scope, opts, lock);
+    const relayPacks = opts.item
+        ? []
+        : opts.pack
+          ? loadPack(opts.pack).relay
+              ? [opts.pack]
+              : []
+          : [...(lock.relays ?? [])];
+    let relayChanged = false;
+    if (!tools.length && !opts.item && (opts.all || opts.pack) && lock.relays?.length) {
+        console.log("relay recorded without tool ownership; clearing lock only");
+        if (opts.pack) {
+            lock.relays = lock.relays.filter((id) => id !== opts.pack);
+            if (!lock.relays.length) delete lock.relays;
+            if (lock.relayOwned) {
+                delete lock.relayOwned[opts.pack];
+                if (!Object.keys(lock.relayOwned).length) delete lock.relayOwned;
+            }
+        } else {
+            delete lock.relays;
+            delete lock.relayOwned;
+        }
+        relayChanged = true;
+    }
+    for (const pack of relayPacks) {
+        if (uninstallRelayPack(lock, pack, tools, scope, opts)) relayChanged = true;
+    }
+    const grouped = new Map<string, { pack: string; tool: Tool; skills: string[] }>();
+    for (const row of relayRemovals) {
+        const key = `${row.pack}:${row.tool}`;
+        const group = grouped.get(key) ?? { pack: row.pack, tool: row.tool, skills: [] };
+        if (!group.skills.includes(row.skill)) group.skills.push(row.skill);
+        grouped.set(key, group);
+    }
+    for (const group of grouped.values()) {
+        const owned = (lock.relayOwned?.[group.pack]?.[group.tool] ?? []).filter((skill) =>
+            group.skills.includes(skill),
+        );
+        if (owned.length) {
+            const args = relayRemoveArgv(owned, group.tool, scope);
+            console.log(`relay remove ${group.pack} -> ${group.tool}: npx ${args.join(" ")}`);
+            if (opts.dryRun) console.log("dry-run: relay not executed");
+            else
+                (opts.relayRunner ?? defaultRelayRunner)(
+                    args,
+                    scope === "home" ? homeDir() : projectDir(opts.cwd),
+                );
+        }
+        if (forgetRelaySkills(lock, group.pack, group.tool, group.skills)) relayChanged = true;
+    }
+    if (removed.size || relayChanged) persist(tx, state, scope, opts, lock);
     if (!opts.dryRun) {
         tx.commit();
         // Empty skill folders must not block a later reinstall. Never remove nonempty folders.
@@ -708,17 +932,27 @@ export async function listCmd(opts: CommonOpts): Promise<void> {
         if (relay) console.log(`${id} relay [${relay.skills.join(",")}] ${relay.source}`);
     }
     for (const s of allItems())
-        console.log(`${keyOf(s)} ${s.item.kind} ${s.item.priority} [${s.item.tools.join(",")}]`);
+        console.log(
+            `${keyOf(s)} ${s.item.kind} ${s.item.priority} [${s.item.tools.join(",")}]${s.item.relay ? " relay" : ""}`,
+        );
     if (!opts.home && !opts.project && !opts.scope) return;
     const scope = await resolveScope(opts);
     const state = readState(scope, opts.cwd);
     migrate(state, scope, opts.cwd);
+    const lock = readLock(scope, opts.cwd);
     for (const [tool, entry] of Object.entries(state)) {
         if (opts.tool && tool !== opts.tool) continue;
         for (const [key, r] of Object.entries(entry.installations ?? {}))
             console.log(
                 `${scope}/${tool}: ${key}@${r.version}${r.external ? " (external)" : r.manual ? " (manual paste)" : ""}`,
             );
+    }
+    for (const pack of lock.relays ?? []) {
+        const owned = lock.relayOwned?.[pack] ?? {};
+        for (const [tool, skills] of Object.entries(owned)) {
+            if (opts.tool && tool !== opts.tool) continue;
+            console.log(`${scope}/${tool}: ${pack} relay owned [${skills.join(",")}]`);
+        }
     }
 }
 export async function doctor(opts: CommonOpts): Promise<void> {
@@ -734,6 +968,25 @@ export async function doctor(opts: CommonOpts): Promise<void> {
         for (const item of lock.items)
             if (!itemStillInstalled(state, `${item.pack}:${item.id}`))
                 problems.push(`${scope}: lock/state mismatch ${item.pack}:${item.id}`);
+        for (const pack of lock.relays ?? []) {
+            if (!loadPack(pack).relay) problems.push(`${scope}: unknown relay ${pack}`);
+            for (const tool of tools) {
+                const owned = lock.relayOwned?.[pack]?.[tool];
+                if (owned === undefined) {
+                    if (lock.relayOwned === undefined)
+                        console.log(`${scope}/${tool}: ${pack} relay (no ownership record)`);
+                    continue;
+                }
+                const names = listSkillNamesOnDisk(toolPaths(tool, scope, opts.cwd).skills);
+                for (const skill of owned) {
+                    if (!names.includes(skill))
+                        problems.push(
+                            `${scope}/${tool}: owned official skill missing ${pack}:${skill}`,
+                        );
+                    else console.log(`${scope}/${tool}: ${pack} relay owned ${skill}`);
+                }
+            }
+        }
         for (const tool of tools) {
             const entry = state[tool];
             if (!entry) continue;
@@ -753,7 +1006,15 @@ export async function doctor(opts: CommonOpts): Promise<void> {
                     problems.push(`${scope}/${tool}: state/lock mismatch ${key}`);
                 assertOwnedPaths(r, sel, tool, scope, opts.cwd);
                 if (r.external) {
-                    if (!existsSync(path.join(p.skills, id, "SKILL.md")))
+                    if (
+                        !existsSync(
+                            path.join(
+                                p.skills,
+                                sel.item.relay ? officialSkillName(sel.item) : id,
+                                "SKILL.md",
+                            ),
+                        )
+                    )
                         problems.push(`${scope}/${tool}: external skill missing ${key}`);
                     else console.log(`${scope}/${tool}: external skill ${key}`);
                 }
@@ -796,7 +1057,8 @@ export async function doctor(opts: CommonOpts): Promise<void> {
                         s.pack === "general" &&
                         s.item.kind === "skill" &&
                         s.item.priority === "p0" &&
-                        s.item.invoke === "auto",
+                        s.item.invoke === "auto" &&
+                        !s.item.relay,
                 )) {
                     if (
                         !["home", "project"].some((sc) =>

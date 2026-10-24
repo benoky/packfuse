@@ -17,14 +17,25 @@ export function loadIndex(): PackIndex {
   return JSON.parse(readFileSync(path.join(packsDir(), "index.json"), "utf8")) as PackIndex;
 }
 
+const githubRepo = /^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/;
+const officialName = /^[a-z0-9-]+$/;
+
+export function officialSkillName(item: { id: string; relay?: { skill?: string } }): string {
+  return item.relay?.skill ?? item.id;
+}
+
+function validRelaySource(source: unknown): source is string {
+  return typeof source === "string" && githubRepo.test(source);
+}
+
 export function loadPack(id: string): PackManifest {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) throw new Error(`Invalid pack id ${id}`);
   const manifest = JSON.parse(readFileSync(path.join(packsDir(), id, "manifest.json"), "utf8")) as PackManifest;
   if (manifest.id !== id || !Array.isArray(manifest.items)) throw new Error(`Invalid manifest ${id}`);
   if (manifest.relay !== undefined) {
     const relay = manifest.relay;
-    if (!relay || typeof relay.source !== "string" || !/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/.test(relay.source) ||
-      !Array.isArray(relay.skills) || !relay.skills.length || relay.skills.some((skill) => !/^[a-z0-9-]+$/.test(skill))) {
+    if (!relay || !validRelaySource(relay.source) ||
+      !Array.isArray(relay.skills) || !relay.skills.length || relay.skills.some((skill) => !officialName.test(skill))) {
       throw new Error(`Invalid relay ${id}`);
     }
   }
@@ -35,7 +46,9 @@ export function loadPack(id: string): PackManifest {
       !Array.isArray(item.tools) || !item.tools.length || item.tools.some((t) => !["cursor", "claude", "codex"].includes(t)) ||
       typeof item.version !== "string" || !/^\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(item.version) ||
       typeof item.source !== "string" || (item.kind === "skill" && !["auto", "slash"].includes(item.invoke!)) ||
-      (item.requires !== undefined && (!Array.isArray(item.requires) || item.requires.some((r) => !/^[a-z0-9-]+:[a-zA-Z0-9-]+$/.test(r))))) {
+      (item.requires !== undefined && (!Array.isArray(item.requires) || item.requires.some((r) => !/^[a-z0-9-]+:[a-zA-Z0-9-]+$/.test(r)))) ||
+      (item.relay !== undefined && (item.kind !== "skill" || !validRelaySource(item.relay.source) ||
+        (item.relay.skill !== undefined && !officialName.test(item.relay.skill))))) {
       throw new Error(`Invalid manifest item ${id}:${item.id}`);
     }
     seen.add(item.id);

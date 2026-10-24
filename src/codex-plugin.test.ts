@@ -23,12 +23,13 @@ test("codex plugin package contains skills only", () => {
         assert.ok(manifest.extensions["com.openai"].interface.shortDescription.length <= 30);
         assert.equal(existsSync(path.join(dir, "hooks")), false);
         assert.equal(existsSync(path.join(dir, "assets", "logo.png")), true);
-        assert.ok(built.skills.includes("brainstorming"));
+        assert.ok(built.skills.includes("implement-change"));
         assert.ok(built.skills.includes("fix-ci"));
+        assert.equal(built.skills.includes("brainstorming"), false);
         assert.equal(built.skills.includes("docs-pdf"), false);
         const slash = YAML.parse(
             readFileSync(
-                path.join(dir, "skills", "requesting-code-review", "agents", "openai.yaml"),
+                path.join(dir, "skills", "blast-radius", "agents", "openai.yaml"),
                 "utf8",
             ),
         ) as {

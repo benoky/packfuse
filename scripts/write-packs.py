@@ -21,6 +21,20 @@ def skill(pack, sid, desc, body, invoke="auto", p="p0", requires=None, extras=No
         "requires": requires or [], "version": V, "source": source,
     }
 
+def relay_skill(sid, desc, repo, invoke="auto", p="p0", requires=None, skill=None, source=None):
+    repo_url = repo if repo.startswith("http") else f"https://github.com/{repo}"
+    prefix = "https://github.com/"
+    short = repo_url[len(prefix):] if repo_url.startswith(prefix) else repo_url
+    item = {
+        "id": sid, "kind": "skill", "priority": p, "tools": TOOLS, "invoke": invoke,
+        "requires": requires or [], "version": V,
+        "source": source or f"{short} {sid} (relay)",
+        "relay": {"source": repo_url},
+    }
+    if skill:
+        item["relay"]["skill"] = skill
+    return item
+
 def rule(pack, rid, desc, body, p="p0"):
     d = ROOT / pack / "rules"
     d.mkdir(parents=True, exist_ok=True)
@@ -62,26 +76,18 @@ g.append(rule("general", "code-change", "Minimal diffs; do not edit generated ou
 - Prefer the smallest diff that matches existing patterns.
 - Do not edit generated folders (dist, .next, build, coverage).
 """))
-g.append(rule("general", "git", "Commit, push, and PRs only when asked", """
-- Do not commit, push, or open a pull request unless the user asked in this conversation.
+g.append(rule("general", "git", "Commit when asked or when an approved plan step includes it; push and PRs only for a requested finish", """
+- Commit only when this conversation asked, or when a user-approved plan or explicitly invoked skill includes a commit step.
+- Push, open or merge a pull request, tag, or publish only when this conversation asked for that action or the user invoked a finish or release skill for it.
+- Do not force-push, skip hooks, rewrite published history, or push to a shared branch the user did not name, unless this conversation explicitly authorized that operation.
 """))
 g.append(rule("general", "skill-promotion", "Suggest promoting a repeated procedure once", """
 - If the user re-requests the same procedure about three times, suggest a skill or rule once.
 - Do not suggest mid-implementation. Do not write skill files unless asked. Missing a suggestion is fine.
 """))
 
-g.append(skill("general", "brainstorming", "Use when a new feature or design is unclear. Ask questions and compare options before coding. Do not use for typos or single-file fixes.", """
-# Brainstorming
-1. Restate the goal in one sentence.
-2. Ask only the questions that change the design.
-3. Give 2–3 options with tradeoffs.
-4. Wait for confirmation before `writing-plans` or `implement-change`.
-""", invoke="auto", source="obra/superpowers brainstorming (procedure)"))
-g.append(skill("general", "writing-plans", "Use when turning an agreed design into small, verifiable tasks. Do not use for a one-line fix.", """
-# Writing plans
-Split work into tasks that each have: files to touch, a test or check, and a done definition.
-Keep tasks independently reviewable. Do not start implementation in this skill.
-""", invoke="auto", extras={"references/task-template.md": "# Task\n- Goal:\n- Files:\n- Check:\n"}, source="obra/superpowers writing-plans (procedure)"))
+g.append(relay_skill("brainstorming", "Use when a new feature or design is unclear. Ask questions and compare options before coding. Do not use for typos or single-file fixes.", "https://github.com/obra/superpowers"))
+g.append(relay_skill("writing-plans", "Use when turning an agreed design into small, verifiable tasks. Do not use for a one-line fix.", "https://github.com/obra/superpowers"))
 g.append(skill("general", "implement-change", "Use for a concrete code change: explore, minimal edit, verify. Do not use when the design is still open.", """
 # Implement change
 1. Find the existing pattern; follow it.
@@ -89,44 +95,22 @@ g.append(skill("general", "implement-change", "Use for a concrete code change: e
 3. Run the targeted tests or checks.
 4. Stop. Do not commit unless asked.
 """, invoke="auto"))
-g.append(skill("general", "test-driven-development", "Use when a failing test should exist first (known expected behavior). Do not use when you still need to discover the cause.", """
-# TDD
-1. Write one failing test that names the bug or behavior.
-2. Run it; confirm fail.
-3. Write the smallest code to pass.
-4. Re-run. No extra refactor unless asked.
-""", invoke="auto", extras={"references/antipatterns.md": "- Do not write tests after a lucky pass and call it TDD.\n- Do not mock the unit under test.\n"}, source="obra/superpowers test-driven-development (procedure)"))
-g.append(skill("general", "systematic-debugging", "Use when behavior is wrong and the cause is unknown. Do not use if a failing test already specifies the fix.", """
-# Systematic debugging
-1. Reproduce with a command or test.
-2. State a hypothesis.
-3. Change one thing.
-4. Re-verify the reproduction. Keep a short log of what you ruled out.
-""", invoke="auto", source="obra/superpowers systematic-debugging (procedure)"))
+g.append(relay_skill("test-driven-development", "Use when a failing test should exist first (known expected behavior). Do not use when you still need to discover the cause.", "https://github.com/obra/superpowers"))
+g.append(relay_skill("systematic-debugging", "Use when behavior is wrong and the cause is unknown. Do not use if a failing test already specifies the fix.", "https://github.com/obra/superpowers"))
 g.append(skill("general", "fix-ci", "Use when CI/checks failed. Touch only failing jobs and use logs as evidence.", """
 # Fix CI
 1. Read the failing job logs, not just the check name.
 2. Reproduce locally if possible.
 3. Fix the failing check only. Do not drive-by lint unrelated files.
 """))
-g.append(skill("general", "verification-before-completion", "Use before saying a task is done. Run tests and, for UI, exercise the flow.", """
-# Verification before completion
-- Run the project test/lint commands that cover the change.
-- For UI, click through the path a user would take.
-- Report what you ran and the result.
-""", invoke="auto", source="obra/superpowers verification-before-completion (procedure)"))
+g.append(relay_skill("verification-before-completion", "Use before saying a task is done. Run tests and, for UI, exercise the flow.", "https://github.com/obra/superpowers"))
 g.append(skill("general", "resolve-merge-conflicts", "Use when git merge/rebase conflicts block finishing a change. Keep both sides' intent.", """
 # Merge conflicts
 1. Read both sides. Keep behavior, not just one hunk.
 2. Re-run tests.
 3. Do not delete conflict markers without resolving.
 """))
-g.append(skill("general", "requesting-code-review", "Use when the user asks for a review. Focus on bugs, regressions, and contract breaks. Do not use for casual nits while implementing.", """
-# Requesting code review
-Review for: correctness, regressions, API/contract breaks, missing tests.
-List findings. Do not rewrite the change unless asked.
-Share the same checklist as the reviewer agent.
-""", invoke="slash", extras={"references/checklist.md": "- Bugs and regressions\n- Contract / API breaks\n- Missing tests\n- Secrets\n"}, source="obra/superpowers requesting-code-review (procedure)"))
+g.append(relay_skill("requesting-code-review", "Use when the user asks for a review. Focus on bugs, regressions, and contract breaks. Do not use for casual nits while implementing.", "https://github.com/obra/superpowers", invoke="slash"))
 g.append(skill("general", "propose-skill", "Use when the user wants a skill/rule draft from a repeated procedure, or after the promotion rule fires. Never write files.", """
 # Propose skill
 Output: name, when to use, when not, steps, whether it should be slash-only.
@@ -141,10 +125,7 @@ g.append(skill("general", "safe-refactor", "Use when refactoring with no behavio
 # Safe refactor
 No feature work. Rename/extract only with tests before and after.
 """, invoke="auto", p="p1"))
-g.append(skill("general", "receiving-code-review", "Use when applying review comments. Address each item or explain why not.", """
-# Receiving review
-For each comment: fix, or reply with evidence. Do not silently skip.
-""", invoke="slash", p="p1", source="obra/superpowers receiving-code-review (procedure)"))
+g.append(relay_skill("receiving-code-review", "Use when applying review comments. Address each item or explain why not.", "https://github.com/obra/superpowers", invoke="slash", p="p1"))
 g.append(skill("general", "docs-from-code", "Use when writing docs. Treat code as source of truth.", """
 # Docs from code
 Read the implementation. Do not invent APIs. Mark unknowns.
@@ -190,11 +171,7 @@ g.append(skill("general", "explain-codebase", "Use when mapping modules deeper t
 # Explain codebase
 Map entrypoints, domain folders, and data flow. Cite paths.
 """, invoke="slash", p="p1"))
-g.append(skill("general", "subagent-driven-development", "Use only when a plan has many independent tasks. Spawn a fresh implementer per task, then review. Do not implement everything in the main thread.", """
-# Subagent-driven development
-For each plan task: new implementer subagent, then reviewer using the reviewer agent prompt.
-Do not pollute the parent context with implementation dumps.
-""", invoke="slash", p="p2", requires=["general:reviewer", "general:writing-plans"], source="obra/superpowers subagent-driven-development (procedure)"))
+g.append(relay_skill("subagent-driven-development", "Use only when a plan has many independent tasks. Spawn a fresh implementer per task, then review. Do not implement everything in the main thread.", "https://github.com/obra/superpowers", invoke="slash", p="p2", requires=["general:reviewer", "general:writing-plans"]))
 g.append(skill("general", "adr", "Use when recording an architecture decision.", """
 # ADR
 Write context, decision, consequences. One decision per file.
@@ -255,18 +232,12 @@ git_items.append(skill("git", "commit-by-theme", "Use when the user asked to com
 Stage related files per theme. Subject from the diff. Body: bullet list with -.
 Do not push unless asked.
 """, invoke="slash"))
-git_items.append(skill("git", "finishing-a-development-branch", "Use when the user asked to finish a branch: test, then merge or PR, then cleanup.", """
-# Finish branch
-Run tests. Open or update PR if asked. Do not force-push protected branches.
-""", invoke="slash", source="obra/superpowers finishing-a-development-branch (procedure)"))
+git_items.append(relay_skill("finishing-a-development-branch", "Use when the user asked to finish a branch: test, then merge or PR, then cleanup.", "https://github.com/obra/superpowers", invoke="slash"))
 git_items.append(skill("git", "git-bisect", "Use to find the commit that introduced a regression.", """
 # Bisect
 Automate git bisect with a test command. Stop at first bad commit and summarize.
 """, invoke="slash", p="p1"))
-git_items.append(skill("git", "using-git-worktrees", "Use when isolating a branch in a worktree.", """
-# Worktrees
-Create a sibling worktree. Do not copy node_modules; install in the worktree.
-""", invoke="slash", p="p1", source="obra/superpowers using-git-worktrees (procedure)"))
+git_items.append(relay_skill("using-git-worktrees", "Use when isolating a branch in a worktree.", "https://github.com/obra/superpowers", invoke="slash", p="p1"))
 git_items.append(skill("git", "cut-release", "Use for version bump, changelog, and tag. No deploy credentials.", """
 # Cut release
 Bump version, changelog, tag. Do not publish to registries unless asked.
@@ -295,34 +266,17 @@ pack("api", api)
 
 # web-ui
 web = []
-web.append(skill("web-ui", "frontend-design", "Use for web UI implementation. Avoid generic AI aesthetics; match the product.", """
-# Frontend design
-Use the project's tokens and components. Distinct typography and spacing. No purple-on-white cliché unless the brand is that.
-""", source="anthropics/skills frontend-design (procedure)"))
-web.append(skill("web-ui", "webapp-testing", "Use to verify a local web app in a real browser. Pick one stack (Playwright-class). Slash only.", """
-# Webapp testing
-Start the app if needed. Exercise the user flow. One browser tool family only.
-""", invoke="slash", source="anthropics/skills webapp-testing (procedure)"))
-web.append(skill("web-ui", "web-design-guidelines", "Wrapper: prefer the official Vercel web-design-guidelines skill if installed.", """
-# Web design guidelines
-If the official Vercel skill is missing, audit contrast, focus, keyboard, and form labels only.
-""", invoke="slash", p="p1", source="vercel-labs/agent-skills (wrapper)"))
+web.append(relay_skill("frontend-design", "Use for web UI implementation. Avoid generic AI aesthetics; match the product.", "https://github.com/anthropics/skills"))
+web.append(relay_skill("webapp-testing", "Use to verify a local web app in a real browser. Pick one stack (Playwright-class). Slash only.", "https://github.com/anthropics/skills", invoke="slash"))
+web.append(relay_skill("web-design-guidelines", "Use for accessibility and UX audits against Vercel web design guidelines.", "https://github.com/vercel-labs/agent-skills", invoke="slash", p="p1"))
 pack("web-ui", web)
 
 # react
-react = [skill("react", "react-best-practices", "Wrapper for Vercel React/Next best practices. Prefer the official pack; do not copy vendor text.", """
-# React best practices
-If `vercel-react-best-practices` is not installed, tell the user to install the official Vercel skill.
-Otherwise follow that pack. Waterfall fetches, bundle size, and server/client split.
-""", invoke="auto", source="vercel-labs/agent-skills (wrapper)")]
-react[-1]["vendor"] = "npx skills add vercel-labs/agent-skills"
+react = [relay_skill("react-best-practices", "Use when the user requests React/Next performance or pattern review.", "https://github.com/vercel-labs/agent-skills", skill="vercel-react-best-practices", source="vercel-labs/agent-skills (relay)")]
 pack("react", react)
 
 # figma
-fig = [skill("figma", "figma-design-to-code", "Wrapper for official Figma design-to-code. No secrets in this skill.", """
-# Figma to code
-Ask the user to connect Figma MCP in their tool. Then: structure, tokens, then components. Do not invent a design system.
-""", invoke="slash", source="Figma official (wrapper)")]
+fig = [relay_skill("figma-design-to-code", "Use when implementing a supplied Figma design. Connect Figma MCP in the coding tool.", "https://github.com/figma/mcp-server-guide", invoke="slash", source="Figma official (relay)")]
 pack("figma", fig)
 
 # local-runtime
@@ -345,10 +299,7 @@ Check authz on new endpoints, secret handling, injection in queries/HTML. Report
 pack("security", sec)
 
 # tools
-tools_p = [skill("tools", "mcp-builder", "Use only when building an MCP server.", """
-# MCP builder
-Define tools with tight schemas. Validate input. No secret logging.
-""", invoke="slash", p="p1", extras={"references/ts.md": "Prefer SDK types and explicit tool names.\n", "references/python.md": "Validate with typed models before side effects.\n"}, source="anthropics/skills mcp-builder (procedure)")]
+tools_p = [relay_skill("mcp-builder", "Use only when building an MCP server.", "https://github.com/anthropics/skills", invoke="slash", p="p1")]
 pack("tools", tools_p)
 
 docs = ROOT / "docs"

@@ -6,12 +6,19 @@
             "id": "react-best-practices",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
-            "source": "vercel-labs/agent-skills (wrapper)",
-            "vendor": "npx skills add vercel-labs/agent-skills"
+            "source": "vercel-labs/agent-skills (relay)",
+            "relay": {
+                "source": "https://github.com/vercel-labs/agent-skills",
+                "skill": "vercel-react-best-practices"
+            }
         }
     ]
 }

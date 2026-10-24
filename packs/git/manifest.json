@@ -6,7 +6,11 @@
             "id": "commit-by-theme",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -16,17 +20,28 @@
             "id": "finishing-a-development-branch",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers finishing-a-development-branch (procedure)"
+            "source": "obra/superpowers finishing-a-development-branch (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "git-bisect",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -36,17 +51,28 @@
             "id": "using-git-worktrees",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers using-git-worktrees (procedure)"
+            "source": "obra/superpowers using-git-worktrees (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "cut-release",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",

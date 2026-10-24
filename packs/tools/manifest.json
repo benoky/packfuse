@@ -6,11 +6,18 @@
             "id": "mcp-builder",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
-            "source": "anthropics/skills mcp-builder (procedure)"
+            "source": "anthropics/skills mcp-builder (relay)",
+            "relay": {
+                "source": "https://github.com/anthropics/skills"
+            }
         }
     ]
 }

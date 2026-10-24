@@ -15,7 +15,15 @@ import {
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { install, uninstall, update, doctor, resolveScope, relayArgv } from "./engine.js";
+import {
+    install,
+    uninstall,
+    update,
+    doctor,
+    resolveScope,
+    relayArgv,
+    relayRemoveArgv,
+} from "./engine.js";
 import { estimateTokens } from "./tokens.js";
 import { toolPaths } from "./paths.js";
 import { validateCatalog } from "./validate.js";
@@ -38,6 +46,7 @@ function tree(dir: string, root = dir): Record<string, string> {
         }),
     );
 }
+const quietRelay = { relayRunner: () => undefined };
 async function capture(fn: () => Promise<void>) {
     const lines: string[] = [];
     const log = console.log;
@@ -73,7 +82,7 @@ test("packfuse regression suite", async (t) => {
                     `${tool}/${scope}: dry-run, install, idempotency, update, uninstall`,
                     async () => {
                         const root = cwd(`${tool}-${scope}`);
-                        const opts = { scope, tool, cwd: root };
+                        const opts = { scope, tool, cwd: root, ...quietRelay };
                         const before = tree(temp);
                         const dry = await capture(() => install({ ...opts, dryRun: true }));
                         assert.match(dry, /SKILL.md/);
@@ -108,20 +117,24 @@ test("packfuse regression suite", async (t) => {
             }
         await t.test("exact ownership, unrelated skills and user-added files survive", async () => {
             const root = cwd("exact");
-            const base = { project: true, tool: "cursor", cwd: root };
+            const base = { project: true, tool: "cursor", cwd: root, ...quietRelay };
             await capture(() => install({ ...base, pack: "general" }));
             await capture(() => install({ ...base, pack: "git", priority: "p1" }));
             const extra = path.join(root, ".cursor/skills/git-bisect/my-note.md");
             put(extra, "mine");
             await capture(() => uninstall({ ...base, pack: "general", item: "git" }));
             assert.ok(existsSync(path.join(root, ".cursor/skills/git-bisect/SKILL.md")));
-            assert.ok(existsSync(path.join(root, ".cursor/skills/using-git-worktrees/SKILL.md")));
+            assert.ok(
+                json(path.join(root, ".packfuse/lock.json")).relayOwned.git.cursor.includes(
+                    "using-git-worktrees",
+                ),
+            );
             await capture(() => uninstall({ ...base, pack: "git", item: "git-bisect" }));
             assert.equal(read(extra), "mine");
         });
         await t.test("shared rule state and legacy state survive sequential removals", async () => {
             const root = cwd("shared");
-            const base = { project: true, tool: "claude", cwd: root };
+            const base = { project: true, tool: "claude", cwd: root, ...quietRelay };
             put(path.join(root, "CLAUDE.md"), "User instructions\n");
             await capture(() => install(base));
             const file = path.join(root, ".packfuse/state.json");
@@ -140,7 +153,13 @@ test("packfuse regression suite", async (t) => {
         });
         await t.test("dependent removal fails before any mutation", async () => {
             const root = cwd("requires");
-            const opts = { project: true, tool: "cursor", cwd: root, pack: "general" };
+            const opts = {
+                project: true,
+                tool: "cursor",
+                cwd: root,
+                pack: "general",
+                ...quietRelay,
+            };
             await capture(() => install({ ...opts, item: "subagent-driven-development" }));
             const before = tree(root);
             await assert.rejects(() => uninstall({ ...opts, item: "reviewer" }), /required by/);
@@ -155,6 +174,7 @@ test("packfuse regression suite", async (t) => {
                     cwd: root,
                     pack: "general",
                     item: "beforeShellExecution",
+                    ...quietRelay,
                 };
                 const p = toolPaths(tool, "project", root);
                 const event = tool === "cursor" ? "beforeShellExecution" : "PreToolUse";
@@ -192,7 +212,7 @@ test("packfuse regression suite", async (t) => {
             });
         await t.test("per-tool update cannot spread packs into another tool", async () => {
             const root = cwd("versions");
-            const opts = { project: true, cwd: root };
+            const opts = { project: true, cwd: root, ...quietRelay };
             await capture(() => install({ ...opts, tool: "cursor", pack: "git" }));
             await capture(() => install({ ...opts, tool: "claude", pack: "api" }));
             const file = path.join(root, ".packfuse/state.json");
@@ -208,7 +228,7 @@ test("packfuse regression suite", async (t) => {
         });
         await t.test("foreign skill ownership and rule collision protection", async () => {
             const root = cwd("foreign");
-            const opts = { project: true, tool: "cursor", cwd: root };
+            const opts = { project: true, tool: "cursor", cwd: root, ...quietRelay };
             const file = path.join(root, ".cursor/skills/api-design/SKILL.md");
             put(file, "foreign");
             await capture(() => install({ ...opts, pack: "api" }));
@@ -237,11 +257,13 @@ test("packfuse regression suite", async (t) => {
                     cwd: root,
                     pack: "general",
                     item: "subagent-driven-development",
+                    ...quietRelay,
                 };
                 await capture(() => install(opts));
                 const p = toolPaths("codex", "project", root);
                 rmSync(path.join(p.agents, "reviewer.toml"));
                 put(path.join(home, ".agents/skills/writing-plans/SKILL.md"), "foreign");
+                put(path.join(root, ".agents/skills/writing-plans/SKILL.md"), "also");
                 const stateFile = path.join(root, ".packfuse/state.json");
                 const s = json(stateFile);
                 delete s.codex.installations["general:writing-plans"];
@@ -413,7 +435,7 @@ test("packfuse regression suite", async (t) => {
         });
         await t.test("update drops retired docs ids and keeps the rest", async () => {
             const root = cwd("retired-docs");
-            const base = { project: true, tool: "cursor" as const, cwd: root };
+            const base = { project: true, tool: "cursor" as const, cwd: root, ...quietRelay };
             await capture(() => install(base));
             const skill = path.join(root, ".cursor", "skills", "docs-pptx", "SKILL.md");
             const marker = path.join(root, ".cursor", "skills", "docs-pptx", ".packfuse");
@@ -448,9 +470,10 @@ test("packfuse regression suite", async (t) => {
             assert.match(updated, /skip docs:docs-pptx/);
             assert.match(updated, /updating the official pdf/);
             assert.match(updated, /anthropics\/skills/);
-            assert.equal(calls.length, 1);
-            assert.ok(calls[0].includes("--skill"));
-            assert.ok(calls[0].includes("pptx"));
+            const docsCalls = calls.filter((args) => args.includes("pptx"));
+            assert.equal(docsCalls.length, 1);
+            assert.ok(docsCalls[0].includes("--skill"));
+            assert.ok(docsCalls[0].includes("pptx"));
             assert.equal(existsSync(skill), false);
             assert.equal(read(note), "mine");
             assert.ok(
@@ -461,6 +484,12 @@ test("packfuse regression suite", async (t) => {
                 false,
             );
             assert.deepEqual(json(lockFile).relays, ["docs"]);
+            assert.deepEqual(json(lockFile).relayOwned.docs.cursor, [
+                "pdf",
+                "docx",
+                "pptx",
+                "xlsx",
+            ]);
             const againCalls: string[][] = [];
             const again = await capture(() =>
                 update({
@@ -471,7 +500,7 @@ test("packfuse regression suite", async (t) => {
                 }),
             );
             assert.match(again, /files=0/);
-            assert.equal(againCalls.length, 1);
+            assert.equal(againCalls.filter((args) => args.includes("pptx")).length, 1);
         });
         await t.test(
             "docs relay prints the official installer and runs only for that pack",
@@ -520,7 +549,14 @@ test("packfuse regression suite", async (t) => {
                 );
                 assert.ok(calls[0].args.includes("-g"));
                 assert.ok(calls[0].args.includes("claude-code"));
-                assert.deepEqual(json(path.join(home, ".packfuse", "lock.json")).relays, ["docs"]);
+                const homeLock = path.join(home, ".packfuse", "lock.json");
+                assert.deepEqual(json(homeLock).relays, ["docs"]);
+                assert.deepEqual(json(homeLock).relayOwned.docs.claude, [
+                    "pdf",
+                    "docx",
+                    "pptx",
+                    "xlsx",
+                ]);
                 await capture(() =>
                     update({
                         home: true,
@@ -533,10 +569,25 @@ test("packfuse regression suite", async (t) => {
                 );
                 assert.equal(calls.length, 2);
                 const removedHome = await capture(() =>
-                    uninstall({ home: true, tool: "claude", cwd: root, pack: "docs" }),
+                    uninstall({
+                        home: true,
+                        tool: "claude",
+                        cwd: root,
+                        pack: "docs",
+                        relayRunner: (args, dir) => {
+                            calls.push({ args, cwd: dir });
+                        },
+                    }),
                 );
-                assert.match(removedHome, /does not remove official skills/);
-                assert.equal(json(path.join(home, ".packfuse", "lock.json")).relays, undefined);
+                assert.match(removedHome, /relay remove docs -> claude/);
+                assert.doesNotMatch(removedHome, /skills remove --all/);
+                assert.deepEqual(
+                    calls[2].args,
+                    relayRemoveArgv(["pdf", "docx", "pptx", "xlsx"], "claude", "home"),
+                );
+                assert.ok(calls[2].args.includes("-g"));
+                assert.equal(json(homeLock).relays, undefined);
+                assert.equal(json(homeLock).relayOwned, undefined);
                 await capture(() =>
                     update({
                         home: true,
@@ -560,7 +611,189 @@ test("packfuse regression suite", async (t) => {
                 const removed = await capture(() =>
                     uninstall({ project: true, tool: "cursor", cwd: root, pack: "docs" }),
                 );
-                assert.match(removed, /does not remove official skills/);
+                assert.match(removed, /relay docs is not installed in this scope/);
+            },
+        );
+        await t.test("relay uninstall skips official skills that predated packfuse", async () => {
+            const root = cwd("docs-preexisting");
+            put(path.join(root, ".cursor", "skills", "pdf", "SKILL.md"), "mine");
+            const calls: string[][] = [];
+            const installed = await capture(() =>
+                install({
+                    project: true,
+                    tool: "cursor",
+                    cwd: root,
+                    pack: "docs",
+                    relayRunner: (args) => {
+                        calls.push(args);
+                    },
+                }),
+            );
+            assert.match(installed, /preserved existing official skills pdf/);
+            const lock = json(path.join(root, ".packfuse", "lock.json"));
+            assert.deepEqual(lock.relayOwned.docs.cursor, ["docx", "pptx", "xlsx"]);
+            const removed = await capture(() =>
+                uninstall({
+                    project: true,
+                    tool: "cursor",
+                    cwd: root,
+                    pack: "docs",
+                    relayRunner: (args) => {
+                        calls.push(args);
+                    },
+                }),
+            );
+            assert.match(removed, /relay remove docs -> cursor/);
+            assert.deepEqual(
+                calls[1],
+                relayRemoveArgv(["docx", "pptx", "xlsx"], "cursor", "project"),
+            );
+            assert.equal(calls[1].includes("pdf"), false);
+            assert.equal(read(path.join(root, ".cursor", "skills", "pdf", "SKILL.md")), "mine");
+            const legacyRoot = cwd("docs-legacy-relay");
+            put(
+                path.join(legacyRoot, ".packfuse", "lock.json"),
+                JSON.stringify({ items: [], relays: ["docs"] }),
+            );
+            const legacyCalls: string[][] = [];
+            const legacy = await capture(() =>
+                uninstall({
+                    project: true,
+                    tool: "cursor",
+                    cwd: legacyRoot,
+                    pack: "docs",
+                    relayRunner: (args) => {
+                        legacyCalls.push(args);
+                    },
+                }),
+            );
+            assert.match(legacy, /no ownership record; not removing official skills/);
+            assert.equal(legacyCalls.length, 0);
+            assert.equal(json(path.join(legacyRoot, ".packfuse", "lock.json")).relays, undefined);
+            const allRoot = cwd("docs-uninstall-all");
+            await capture(() =>
+                install({
+                    project: true,
+                    tool: "codex",
+                    cwd: allRoot,
+                    pack: "docs",
+                    relayRunner: () => undefined,
+                }),
+            );
+            const allCalls: string[][] = [];
+            await capture(() =>
+                uninstall({
+                    project: true,
+                    all: true,
+                    cwd: allRoot,
+                    relayRunner: (args) => {
+                        allCalls.push(args);
+                    },
+                }),
+            );
+            assert.deepEqual(
+                allCalls[0],
+                relayRemoveArgv(["pdf", "docx", "pptx", "xlsx"], "codex", "project"),
+            );
+            assert.equal(json(path.join(allRoot, ".packfuse", "lock.json")).relays, undefined);
+        });
+        await t.test(
+            "item relays add and remove official skills without local copies",
+            async () => {
+                const root = cwd("item-relay");
+                const calls: string[][] = [];
+                await capture(() =>
+                    install({
+                        project: true,
+                        tool: "cursor",
+                        cwd: root,
+                        pack: "general",
+                        relayRunner: (args) => {
+                            calls.push(args);
+                        },
+                    }),
+                );
+                assert.equal(calls.length, 1);
+                assert.deepEqual(
+                    calls[0],
+                    relayArgv(
+                        {
+                            source: "https://github.com/obra/superpowers",
+                            skills: [
+                                "brainstorming",
+                                "writing-plans",
+                                "test-driven-development",
+                                "systematic-debugging",
+                                "verification-before-completion",
+                                "requesting-code-review",
+                            ],
+                        },
+                        "cursor",
+                        "project",
+                    ),
+                );
+                const lock = json(path.join(root, ".packfuse", "lock.json"));
+                assert.equal(lock.relays, undefined);
+                assert.deepEqual(lock.relayOwned.general.cursor, [
+                    "brainstorming",
+                    "writing-plans",
+                    "test-driven-development",
+                    "systematic-debugging",
+                    "verification-before-completion",
+                    "requesting-code-review",
+                ]);
+                assert.ok(
+                    existsSync(
+                        path.join(root, ".cursor", "skills", "implement-change", "SKILL.md"),
+                    ),
+                );
+                assert.equal(
+                    existsSync(path.join(root, ".cursor", "skills", "brainstorming", "SKILL.md")),
+                    false,
+                );
+                const removed = await capture(() =>
+                    uninstall({
+                        project: true,
+                        tool: "cursor",
+                        cwd: root,
+                        pack: "general",
+                        item: "brainstorming",
+                        relayRunner: (args) => {
+                            calls.push(args);
+                        },
+                    }),
+                );
+                assert.match(removed, /relay remove general -> cursor/);
+                assert.deepEqual(calls[1], relayRemoveArgv(["brainstorming"], "cursor", "project"));
+                assert.equal(
+                    json(
+                        path.join(root, ".packfuse", "lock.json"),
+                    ).relayOwned.general.cursor.includes("brainstorming"),
+                    false,
+                );
+                const reactCalls: string[][] = [];
+                await capture(() =>
+                    install({
+                        project: true,
+                        tool: "claude",
+                        cwd: root,
+                        pack: "react",
+                        relayRunner: (args) => {
+                            reactCalls.push(args);
+                        },
+                    }),
+                );
+                assert.deepEqual(
+                    reactCalls[0],
+                    relayArgv(
+                        {
+                            source: "https://github.com/vercel-labs/agent-skills",
+                            skills: ["vercel-react-best-practices"],
+                        },
+                        "claude",
+                        "project",
+                    ),
+                );
             },
         );
     } finally {

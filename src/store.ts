@@ -1,6 +1,25 @@
 import { existsSync, readFileSync } from "node:fs";
-import type { LockFile, StateFile } from "./types.js";
+import type { LockFile, StateFile, Tool } from "./types.js";
 import { lockPath, statePath, type Scope } from "./paths.js";
+
+const tools: Tool[] = ["cursor", "claude", "codex"];
+
+function isRelayOwned(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  for (const [pack, byTool] of Object.entries(value as Record<string, unknown>)) {
+    if (!/^[a-z0-9][a-z0-9-]*$/.test(pack) || !byTool || typeof byTool !== "object" || Array.isArray(byTool)) {
+      return false;
+    }
+    for (const [tool, skills] of Object.entries(byTool as Record<string, unknown>)) {
+      if (!tools.includes(tool as Tool) || !Array.isArray(skills) ||
+        skills.some((skill) => typeof skill !== "string" || !/^[a-z0-9-]+$/.test(skill))) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
 
 export function readLock(scope: Scope, cwd?: string): LockFile {
   const p = lockPath(scope, cwd);
@@ -8,7 +27,8 @@ export function readLock(scope: Scope, cwd?: string): LockFile {
   const value = JSON.parse(readFileSync(p, "utf8"));
   if (!value || !Array.isArray(value.items) || value.items.some((i: any) =>
     !i || typeof i.pack !== "string" || typeof i.id !== "string" || typeof i.version !== "string") ||
-    (value.relays !== undefined && (!Array.isArray(value.relays) || value.relays.some((id: unknown) => typeof id !== "string")))) {
+    (value.relays !== undefined && (!Array.isArray(value.relays) || value.relays.some((id: unknown) => typeof id !== "string"))) ||
+    !isRelayOwned(value.relayOwned)) {
     throw new Error(`Invalid lock: ${p}`);
   }
   return value;

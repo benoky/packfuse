@@ -6,7 +6,11 @@
             "id": "requirements",
             "kind": "rule",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -14,7 +18,11 @@
             "id": "safety",
             "kind": "rule",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -22,7 +30,11 @@
             "id": "verification",
             "kind": "rule",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -30,7 +42,11 @@
             "id": "code-change",
             "kind": "rule",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -38,7 +54,11 @@
             "id": "git",
             "kind": "rule",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -46,36 +66,60 @@
             "id": "skill-promotion",
             "kind": "rule",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self",
-            "requires": ["general:propose-skill"]
+            "requires": [
+                "general:propose-skill"
+            ]
         },
         {
             "id": "brainstorming",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers brainstorming (procedure)"
+            "source": "obra/superpowers brainstorming (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "writing-plans",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers writing-plans (procedure)"
+            "source": "obra/superpowers writing-plans (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "implement-change",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
@@ -85,27 +129,45 @@
             "id": "test-driven-development",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers test-driven-development (procedure)"
+            "source": "obra/superpowers test-driven-development (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "systematic-debugging",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers systematic-debugging (procedure)"
+            "source": "obra/superpowers systematic-debugging (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "fix-ci",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
@@ -115,17 +177,28 @@
             "id": "verification-before-completion",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers verification-before-completion (procedure)"
+            "source": "obra/superpowers verification-before-completion (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "resolve-merge-conflicts",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
@@ -135,17 +208,28 @@
             "id": "requesting-code-review",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers requesting-code-review (procedure)"
+            "source": "obra/superpowers requesting-code-review (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "propose-skill",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -155,7 +239,11 @@
             "id": "blast-radius",
             "kind": "skill",
             "priority": "p0",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -165,7 +253,11 @@
             "id": "safe-refactor",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
@@ -175,17 +267,28 @@
             "id": "receiving-code-review",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
-            "source": "obra/superpowers receiving-code-review (procedure)"
+            "source": "obra/superpowers receiving-code-review (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "docs-from-code",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -195,7 +298,11 @@
             "id": "onboard-repo",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -205,7 +312,11 @@
             "id": "token-budget",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -215,7 +326,11 @@
             "id": "handoff",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -225,7 +340,11 @@
             "id": "update-deps",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -235,7 +354,11 @@
             "id": "author-ci",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -245,7 +368,11 @@
             "id": "flaky-test",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "auto",
             "requires": [],
             "version": "1.1.1",
@@ -255,7 +382,11 @@
             "id": "reproduce-minimal",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -265,7 +396,11 @@
             "id": "explain-codebase",
             "kind": "skill",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -275,17 +410,31 @@
             "id": "subagent-driven-development",
             "kind": "skill",
             "priority": "p2",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
-            "requires": ["general:reviewer", "general:writing-plans"],
+            "requires": [
+                "general:reviewer",
+                "general:writing-plans"
+            ],
             "version": "1.1.1",
-            "source": "obra/superpowers subagent-driven-development (procedure)"
+            "source": "obra/superpowers subagent-driven-development (relay)",
+            "relay": {
+                "source": "https://github.com/obra/superpowers"
+            }
         },
         {
             "id": "adr",
             "kind": "skill",
             "priority": "p2",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -295,7 +444,11 @@
             "id": "incident-lite",
             "kind": "skill",
             "priority": "p2",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "invoke": "slash",
             "requires": [],
             "version": "1.1.1",
@@ -305,7 +458,11 @@
             "id": "code-explorer",
             "kind": "agent",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -313,7 +470,11 @@
             "id": "reviewer",
             "kind": "agent",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -321,7 +482,11 @@
             "id": "verifier",
             "kind": "agent",
             "priority": "p1",
-            "tools": ["cursor", "claude", "codex"],
+            "tools": [
+                "cursor",
+                "claude",
+                "codex"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -329,7 +494,10 @@
             "id": "afterFileEdit",
             "kind": "hook",
             "priority": "p1",
-            "tools": ["cursor", "claude"],
+            "tools": [
+                "cursor",
+                "claude"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -337,7 +505,10 @@
             "id": "beforeShellExecution",
             "kind": "hook",
             "priority": "p1",
-            "tools": ["cursor", "claude"],
+            "tools": [
+                "cursor",
+                "claude"
+            ],
             "version": "1.1.1",
             "source": "self"
         },
@@ -345,7 +516,9 @@
             "id": "sessionEnd",
             "kind": "hook",
             "priority": "p2",
-            "tools": ["cursor"],
+            "tools": [
+                "cursor"
+            ],
             "version": "1.1.1",
             "source": "self"
         }
